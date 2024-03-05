@@ -80,7 +80,7 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>SparkScala.Incr_Load</mainClass>
+              <mainClass>scalatest.Incr_Load</mainClass>
             </manifest>
           </archive>
         </configuration>
