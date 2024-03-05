@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>SparkScala</groupId>
-  <artifactId>FullLoadTest</artifactId>
+  <artifactId>Incr_Load</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <properties>
@@ -80,7 +80,7 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>SparkScala.FullLoadTest</mainClass>
+              <mainClass>SparkScala.Incr_Load</mainClass>
             </manifest>
           </archive>
         </configuration>
