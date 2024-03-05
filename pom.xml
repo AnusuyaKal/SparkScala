@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>scalatest</groupId>
-  <artifactId>SparkScala</artifactId>
+  <artifactId>FullLoadTest</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <properties>
@@ -80,7 +80,7 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>scalatest.MySparkApp</mainClass>
+              <mainClass>scalatest.FullLoadTest</mainClass>
             </manifest>
           </archive>
         </configuration>
