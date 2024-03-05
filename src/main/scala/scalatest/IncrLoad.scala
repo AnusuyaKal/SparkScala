@@ -1,7 +1,7 @@
 package scalatest;
 import org.apache.spark.sql.SparkSession
 
-object IncrementalLoadTest {
+object IncrLoad {
   def main(args: Array[String]): Unit = {
     // Create SparkSession
     val spark = SparkSession.builder()
