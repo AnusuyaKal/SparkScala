@@ -25,6 +25,7 @@ object IncrLoad {
 
       // Identify new rows by performing a left anti join
       val incrementalData = newData.join(existingData, newData.columns, "left_anti")
+      incrementalData.show()
 
       if (incrementalData.isEmpty) {
         println("No new data to load. Incremental load test passed.")
