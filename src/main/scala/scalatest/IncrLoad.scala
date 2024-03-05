@@ -21,7 +21,7 @@ object IncrLoad {
       val existingData = spark.sql("SELECT * FROM USUK30.people")
 
       // Read new data from PostgreSQL
-      val newData = spark.read.jdbc(postgresUrl, "health_insurance", postgresProperties)
+      val newData = spark.read.jdbc(postgresUrl, "people", postgresProperties)
 
       // Identify new rows by performing a left anti join
       val incrementalData = newData.join(existingData, newData.columns, "left_anti")
