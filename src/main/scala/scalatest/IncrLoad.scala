@@ -23,7 +23,7 @@ object IncrLoad {
       // Read new data from PostgreSQL
       // val newData = spark.read.jdbc(postgresUrl, "car_insurance_claims", postgresProperties)
       
-      val whereCondition = "'BIRTH' = '05NOV33'"
+      val whereCondition = "'BIRTH' > '17FEB53'"
       // Read new data from PostgreSQL with the WHERE condition
       // val newData = spark.read.jdbc(postgresUrl, "car_insurance_claims", postgresProperties, predicates = Array(whereCondition))
       // val newData = spark.read.jdbc(postgresUrl, "car_insurance_claims", postgresProperties, predicates = Map("predicates" -> whereCondition))
