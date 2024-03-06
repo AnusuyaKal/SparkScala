@@ -50,7 +50,7 @@ object IncrLoad {
         println("No new data to load. Incremental load test passed.")
       } else {
         // Append new data to Hive table
-        incrementalData.write.mode("append").format("parquet").saveAsTable("project1db.carinsuranceclaims")
+        incrementalData.write.mode("overwrite").format("parquet").saveAsTable("project1db.carinsuranceclaims")
         println("Incremental load successful.")
       }
     } catch {
