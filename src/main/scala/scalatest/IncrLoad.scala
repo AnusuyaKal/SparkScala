@@ -1,4 +1,5 @@
 package scalatest
+
 import org.apache.spark.sql.SparkSession
 
 object IncrLoad {
@@ -6,8 +7,6 @@ object IncrLoad {
     // Create SparkSession
     val spark = SparkSession.builder()
       .appName("IncrementalLoadTest")
-      .master("local[*]") // Use local mode for testing
-      .enableHiveSupport() // Enable Hive support
       .getOrCreate()
 
     // Define PostgreSQL connection properties
@@ -19,30 +18,25 @@ object IncrLoad {
 
     try {
       // Read existing data from Hive table
-      val existingData = spark.sql("SELECT * FROM sanket_db.health_insurance")
+      val existingData = spark.table("USUK30.people") // Read the existing table directly
 
       // Read new data from PostgreSQL
-      val newData = spark.read.jdbc(postgresUrl, "health_insurance", postgresProperties)
+      val newData = spark.read.jdbc(postgresUrl, "people", postgresProperties)
 
       // Identify new rows by performing a left anti join
       val incrementalData = newData.join(existingData, newData.columns, "left_anti")
       incrementalData.show()
+      println("New_Data", newData.count()) 
+      println("Existing_Data", existingData.count())
+      if (newData.count() == incrementalData.count() + existingData.count()){
+        println("Count Matches")
+      }
 
-      val newDataCount = newData.count()
-      val existingDataCount = existingData.count()
-      val incrementalDataCount = incrementalData.count()
-
-      println("New data count:", newDataCount)
-      println("Existing data count:", existingDataCount)
-      println("Incremental data count:", incrementalDataCount)
-
-      if (incrementalDataCount == 0) {
+      if (incrementalData.isEmpty) {
         println("No new data to load. Incremental load test passed.")
       } else {
         // Append new data to Hive table
-        // incrementalData.write.mode("append").saveAsTable("sanket_db.health_insurance")
-        incrementalData.write.mode("append").format("hive").saveAsTable("sanket_db.health_insurance")
-
+        incrementalData.write.mode("append").format("hive").saveAsTable("USUK30.people")
         println("Incremental load successful.")
       }
     } catch {
