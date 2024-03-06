@@ -1,4 +1,4 @@
-package scalatest;
+package scalatest
 import org.apache.spark.sql.SparkSession
 
 object IncrLoad {
@@ -7,6 +7,7 @@ object IncrLoad {
     val spark = SparkSession.builder()
       .appName("IncrementalLoadTest")
       .master("local[*]") // Use local mode for testing
+      .enableHiveSupport() // Enable Hive support
       .getOrCreate()
 
     // Define PostgreSQL connection properties
@@ -18,7 +19,7 @@ object IncrLoad {
 
     try {
       // Read existing data from Hive table
-      val existingData = spark.sql("SELECT * FROM people")
+      val existingData = spark.sql("SELECT * FROM USUK30.people")
 
       // Read new data from PostgreSQL
       val newData = spark.read.jdbc(postgresUrl, "people", postgresProperties)
@@ -26,17 +27,20 @@ object IncrLoad {
       // Identify new rows by performing a left anti join
       val incrementalData = newData.join(existingData, newData.columns, "left_anti")
       incrementalData.show()
-      println("New_Data", newData.count()) 
-      println("Existing_Data", existingData.count())
-      if (newData.count() == incrementalData.count() + existingData.count()){
-        println("Count Matches")
-      }
 
-      if (incrementalData.isEmpty) {
+      val newDataCount = newData.count()
+      val existingDataCount = existingData.count()
+      val incrementalDataCount = incrementalData.count()
+
+      println("New data count:", newDataCount)
+      println("Existing data count:", existingDataCount)
+      println("Incremental data count:", incrementalDataCount)
+
+      if (incrementalDataCount == 0) {
         println("No new data to load. Incremental load test passed.")
       } else {
         // Append new data to Hive table
-        incrementalData.write.mode("overwrite").saveAsTable("USUK30.people")
+        incrementalData.write.mode("append").saveAsTable("USUK30.people")
         println("Incremental load successful.")
       }
     } catch {
