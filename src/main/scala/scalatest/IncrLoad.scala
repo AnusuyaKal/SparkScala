@@ -26,7 +26,8 @@ object IncrLoad {
       // Identify new rows by performing a left anti join
       val incrementalData = newData.join(existingData, newData.columns, "left_anti")
       incrementalData.show()
-      
+      println("New_Data", newData.count()) 
+      println("Existing_Data", existingData.count())
       if (newData.count() == incrementalData.count() + existingData.count()){
         println("Count Matches")
       }
