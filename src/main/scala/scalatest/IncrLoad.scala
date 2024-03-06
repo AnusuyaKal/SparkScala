@@ -40,7 +40,9 @@ object IncrLoad {
         println("No new data to load. Incremental load test passed.")
       } else {
         // Append new data to Hive table
-        incrementalData.write.mode("append").saveAsTable("USUK30.people")
+        // incrementalData.write.mode("append").saveAsTable("USUK30.people")
+        incrementalData.write.mode("append").format("hive").saveAsTable("USUK30.people")
+
         println("Incremental load successful.")
       }
     } catch {
