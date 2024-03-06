@@ -18,7 +18,7 @@ object IncrLoad {
 
     try {
       // Read existing data from Hive table
-      val existingData = spark.table("sanket_db.health_insurance") // Read the existing table directly
+      val existingData = spark.read.format("parquet").table("sanket_db.health_insurance") // Read the existing table directly
 
       // Read new data from PostgreSQL
       val newData = spark.read.jdbc(postgresUrl, "health_insurance", postgresProperties)
@@ -36,7 +36,7 @@ object IncrLoad {
         println("No new data to load. Incremental load test passed.")
       } else {
         // Append new data to Hive table
-        incrementalData.write.mode("append").format("hive").saveAsTable("sanket_db.health_insurance")
+        incrementalData.write.mode("append").format("parquet").saveAsTable("sanket_db.health_insurance")
         println("Incremental load successful.")
       }
     } catch {
