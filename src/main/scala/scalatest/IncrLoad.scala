@@ -18,10 +18,10 @@ object IncrLoad {
 
     try {
       // Read existing data from Hive table
-      val existingData = spark.read.format("parquet").table("project1db.carInsuranceClaims") // Read the existing table directly
+      val existingData = spark.read.format("parquet").table("project1db.carinsuranceclaims") // Read the existing table directly
 
       // Read new data from PostgreSQL
-      val newData = spark.read.jdbc(postgresUrl, "carInsuranceClaims", postgresProperties)
+      val newData = spark.read.jdbc(postgresUrl, "car_insurance_claims", postgresProperties)
 
       // Identify new rows by performing a left anti join
       val incrementalData = newData.join(existingData, newData.columns, "left_anti")
@@ -36,7 +36,7 @@ object IncrLoad {
         println("No new data to load. Incremental load test passed.")
       } else {
         // Append new data to Hive table
-        incrementalData.write.mode("overwrite").format("parquet").saveAsTable("project1db.carInsuranceClaims")
+        incrementalData.write.mode("overwrite").format("parquet").saveAsTable("project1db.carinsuranceclaims")
         println("Incremental load successful.")
       }
     } catch {
