@@ -21,7 +21,12 @@ object IncrLoad {
       val existingData = spark.read.format("parquet").table("project1db.carinsuranceclaims") // Read the existing table directly
 
       // Read new data from PostgreSQL
-      val newData = spark.read.jdbc(postgresUrl, "car_insurance_claims", postgresProperties)
+      // val newData = spark.read.jdbc(postgresUrl, "car_insurance_claims", postgresProperties)
+      
+      val whereCondition = "ID = '63581743'"
+      // Read new data from PostgreSQL with the WHERE condition
+      val newData = spark.read.jdbc(postgresUrl, "car_claims_insurance", postgresProperties, predicates = Array(whereCondition))
+
 
       // Identify new rows by performing a left anti join
       val incrementalData = newData.join(existingData, newData.columns, "left_anti")
