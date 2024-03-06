@@ -37,7 +37,7 @@ object IncrLoad {
 
       // Identify new rows by performing a left anti join
       // val incrementalData = newData.join(existingData, newData.columns, "left_anti")
-      incrementalData = newData
+      val incrementalData = newData
       // incrementalData.show()
       println("New_Data", newData.count()) 
       println("Existing_Data", existingData.count())
