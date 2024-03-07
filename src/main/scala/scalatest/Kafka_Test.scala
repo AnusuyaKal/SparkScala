@@ -1,59 +1,41 @@
-package scalatest
+import org.scalatest.funsuite.AnyFunSuite
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions._
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.spark.sql.streaming.Trigger
+import java.util.Properties
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
+class MyMainClassTest extends AnyFunSuite {
 
-object Kafka_Test {
-  def main(args: Array[String]): Unit = {
-    // Initialize SparkSession
-    val spark = SparkSession.builder()
-      .appName("TestAPIReadingAndKafkaCreation")
-      .master("local[2]")
-      .getOrCreate()
+  // Create a SparkSession for testing
+  val spark = SparkSession.builder()
+    .appName("MyMainClassTest")
+    .master("local[2]")
+    .getOrCreate()
 
-    try {
-      // Read API response into DataFrame
-      val apiResponseDF = readAPIResponse(spark, "http://18.133.73.36:5001/insurance_claims1")
+  // Test case for MyMainClass functionality
+  test("MyMainClass functionality test") {
+    val url = "http://18.133.73.36:5001/insurance_claims1"
+    val topic = "insurance_claims_5-3-12-98"
 
-      // Check if DataFrame is not null and has rows
-      if (apiResponseDF != null && !apiResponseDF.isEmpty) {
-        println("API response DataFrame is not null and has data.")
-        // Show DataFrame
-        apiResponseDF.show()
+    // Execute MyMainClass code
+    MyMainClass.main(Array())
 
-        // Create Kafka topic
-        createKafkaTopic(apiResponseDF, "kafka_topic")
+    // Read the DataFrame from Kafka topic
+    val kafkaDF = spark.read
+      .format("kafka")
+      .option("kafka.bootstrap.servers", "localhost:9092") // Use localhost for testing
+      .option("subscribe", topic)
+      .option("startingOffsets", "earliest")
+      .load()
 
-        // Verify that the API was read and Kafka topic was created
-        verifyAssertions(apiResponseDF, spark)
-      } else {
-        println("API response DataFrame is null or empty.")
-      }
-    } catch {
-      case e: Exception =>
-        println(s"Test failed: ${e.getMessage}")
-        e.printStackTrace() // Print stack trace
-    } finally {
-      // Stop SparkSession
-      spark.stop()
-    }
-  }
+    // Convert Kafka messages to strings for comparison
+    val messages = kafkaDF.selectExpr("CAST(value AS STRING)").as[String]
 
-  def readAPIResponse(spark: SparkSession, apiUrl: String): DataFrame = {
-    // Read API response into DataFrame
-    val apiResponseDF = spark.read.json(apiUrl)
-    apiResponseDF
-  }
+    // Verify if messages contain data
+    assert(messages.count() > 0)
 
-  def createKafkaTopic(apiResponseDF: DataFrame, topicName: String): Unit = {
-    // Create Kafka topic
-    apiResponseDF.write.mode("append").saveAsTable(topicName)
-    println(s"Kafka topic '$topicName' created successfully.")
-  }
-
-  def verifyAssertions(apiResponseDF: DataFrame, spark: SparkSession): Unit = {
-    // Verify that the API was read and Kafka topic was created
-    assert(apiResponseDF.count() > 0, "API response DataFrame should contain data.")
-    assert(spark.catalog.tableExists("kafka_topic"), "Kafka topic should exist in catalog.")
-    println("Assertions passed successfully.")
+    // Stop SparkSession after test
+    spark.stop()
   }
 }
