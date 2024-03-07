@@ -5,7 +5,7 @@
          http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>scala.scalatest</groupId>
+    <groupId>SparkScala.scalatest</groupId>
     <artifactId>my-spark-project</artifactId>
     <version>0.1</version>
 
@@ -98,7 +98,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>scala.scalatest.Kafka_Test</mainClass>
+                            <mainClass>SparkScala.scalatest.Kafka_Test</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
