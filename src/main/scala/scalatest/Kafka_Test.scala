@@ -1,6 +1,7 @@
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import spark.implicits._ // Import Spark implicits here
+import org.apache.spark.sql.functions.col
 
 object Kafka_Test {
   def main(args: Array[String]): Unit = {
@@ -39,8 +40,12 @@ object Kafka_Test {
         .option("startingOffsets", "earliest")
         .load()
 
-      // Convert Kafka messages to string for processing
-      val messages = df.selectExpr("CAST(value AS STRING)").as[String]
+      
+      // Convert the value column to String type
+      val messages = df.withColumn("message", col("value").cast("string")).select("message")
+
+      // Now messages is a DataFrame containing only the "message" column with String type
+
 
       // Display Kafka messages
       messages.show()
