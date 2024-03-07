@@ -1,41 +1,56 @@
+package scalatest
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions._
 
-object Kafka_Test_Test {
-
+object Kafka_Test {
   def main(args: Array[String]): Unit = {
-    // Create a SparkSession for testing
+    // Create a SparkSession
     val spark = SparkSession.builder()
-      .appName("Kafka_Test_Test")
+      .appName("Kafka_Test")
       .master("local[2]")
       .getOrCreate()
 
-    // Test case for Kafka_Test functionality
-    testKafka_TestFunctionality(spark)
+    try {
+      // Parameters
+      val url = "http://18.133.73.36:5001/insurance_claims1"
+      val topic = "insurance_claims_5-3-12-98"
 
-    // Stop SparkSession after test
-    spark.stop()
-  }
+      // Read JSON data from URL into DataFrame
+      val jsonData = spark.read.json(url)
 
-  // Test Kafka_Test functionality
-  def testKafka_TestFunctionality(spark: SparkSession): Unit = {
-    val url = "http://18.133.73.36:5001/insurance_claims1"
-    val topic = "insurance_claims_5-3-12-98"
+      // Show DataFrame contents
+      jsonData.show()
 
-    // Execute Kafka_Test code
-    Kafka_Test.main(Array())
+      // Kafka server configuration
+      val kafkaServers = "localhost:9092"
 
-    // Read the DataFrame from Kafka topic
-    val kafkaDF = spark.read
-      .format("kafka")
-      .option("kafka.bootstrap.servers", "localhost:9092") // Use localhost for testing
-      .option("subscribe", topic)
-      .option("startingOffsets", "earliest")
-      .load()
+      // Publish DataFrame as JSON string to Kafka topic
+      jsonData.select(to_json(struct("*")).alias("value"))
+        .write
+        .format("kafka")
+        .option("kafka.bootstrap.servers", kafkaServers)
+        .option("topic", topic)
+        .save()
 
-    // Convert Kafka messages to strings for comparison
-    val messages = kafkaDF.selectExpr("CAST(value AS STRING)").as[String]
+      // Read from Kafka topic to verify data pipeline
+      val df = spark.read.format("kafka")
+        .option("kafka.bootstrap.servers", kafkaServers)
+        .option("subscribe", topic)
+        .option("startingOffsets", "earliest")
+        .load()
 
-    // Verify if messages contain data
-    assert(messages.count() > 0)
+      // Convert Kafka messages to string for processing
+      val messages = df.selectExpr("CAST(value AS STRING)").as[String]
+
+      // Display Kafka messages
+      messages.show()
+
+      // Stop SparkSession
+      spark.stop()
+    } catch {
+      case e: Exception =>
+        println(s"Error: ${e.getMessage}")
+        e.printStackTrace()
+    }
   }
 }
