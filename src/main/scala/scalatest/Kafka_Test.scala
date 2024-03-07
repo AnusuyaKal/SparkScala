@@ -1,4 +1,5 @@
 package scalatest
+
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object Kafka_Test {
@@ -11,20 +12,19 @@ object Kafka_Test {
 
     try {
       // Read API response into DataFrame
-      val apiResponseDF = spark.read.json("http://18.133.73.36:5001/insurance_claims1")
+      val apiResponseDF = readAPIResponse(spark, "http://18.133.73.36:5001/insurance_claims1")
 
       // Check if DataFrame is not null and has rows
       if (apiResponseDF != null && !apiResponseDF.isEmpty) {
-        println("show", apiResponseDF)
+        println("API response DataFrame is not null and has data.")
         // Show DataFrame
         apiResponseDF.show()
 
         // Create Kafka topic
-        apiResponseDF.write.mode("append").saveAsTable("kafka_topic")
+        createKafkaTopic(apiResponseDF, "kafka_topic")
 
         // Verify that the API was read and Kafka topic was created
-        assert(apiResponseDF.count() > 0)
-        assert(spark.catalog.tableExists("kafka_topic"))
+        verifyAssertions(apiResponseDF, spark)
       } else {
         println("API response DataFrame is null or empty.")
       }
@@ -32,11 +32,28 @@ object Kafka_Test {
       case e: Exception =>
         println(s"Test failed: ${e.getMessage}")
         e.printStackTrace() // Print stack trace
-      case _: Throwable =>
-        println("An unexpected error occurred.")
     } finally {
       // Stop SparkSession
       spark.stop()
     }
+  }
+
+  def readAPIResponse(spark: SparkSession, apiUrl: String): DataFrame = {
+    // Read API response into DataFrame
+    val apiResponseDF = spark.read.json(apiUrl)
+    apiResponseDF
+  }
+
+  def createKafkaTopic(apiResponseDF: DataFrame, topicName: String): Unit = {
+    // Create Kafka topic
+    apiResponseDF.write.mode("append").saveAsTable(topicName)
+    println(s"Kafka topic '$topicName' created successfully.")
+  }
+
+  def verifyAssertions(apiResponseDF: DataFrame, spark: SparkSession): Unit = {
+    // Verify that the API was read and Kafka topic was created
+    assert(apiResponseDF.count() > 0, "API response DataFrame should contain data.")
+    assert(spark.catalog.tableExists("kafka_topic"), "Kafka topic should exist in catalog.")
+    println("Assertions passed successfully.")
   }
 }
