@@ -1,3 +1,4 @@
+package scala.scalatest
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.mockito.Mockito._
 import org.scalatest.{BeforeAndAfter, FlatSpec}
