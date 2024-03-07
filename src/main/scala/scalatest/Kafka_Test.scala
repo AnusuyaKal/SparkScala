@@ -1,6 +1,6 @@
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
-import spark.implicits._ // Import Spark implicits here
+// import spark.implicits._ // Import Spark implicits here
 import org.apache.spark.sql.functions.col
 
 object Kafka_Test {
