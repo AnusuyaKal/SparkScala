@@ -12,7 +12,7 @@ object Kafka_Test {
     try {
       // Read API response into DataFrame
       val apiResponseDF = spark.read.json("http://18.133.73.36:5001/insurance_claims1")
-      
+
       // Check if DataFrame is not null and has rows
       if (apiResponseDF != null && !apiResponseDF.isEmpty) {
         println("show", apiResponseDF)
@@ -31,6 +31,7 @@ object Kafka_Test {
     } catch {
       case e: Exception =>
         println(s"Test failed: ${e.getMessage}")
+        e.printStackTrace() // Print stack trace
       case _: Throwable =>
         println("An unexpected error occurred.")
     } finally {
