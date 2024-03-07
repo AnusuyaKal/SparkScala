@@ -1,4 +1,4 @@
-package scalatest
+package SparkScala.scala.scalatest
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object TestAPIReadingAndKafkaCreation {
