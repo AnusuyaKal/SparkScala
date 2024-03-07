@@ -1,7 +1,7 @@
 package scalatest
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
-object TestAPIReadingAndKafkaCreation {
+object Kafka_Test {
   def main(args: Array[String]): Unit = {
     // Initialize SparkSession
     val spark = SparkSession.builder()
