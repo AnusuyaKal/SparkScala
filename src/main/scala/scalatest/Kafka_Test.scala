@@ -12,7 +12,7 @@ object Kafka_Test {
     try {
       // Read API response into DataFrame
       val apiResponseDF = spark.read.json("http://18.133.73.36:5001/insurance_claims1")
-      println("show")
+      println("show", apiResponseDF)
       apiResponseDF.show()
 
       // Create Kafka topic
