@@ -1,6 +1,6 @@
 import org.apache.spark.sql.SparkSession
 
-object MyMainClassTest {
+object Kafka_Test {
 
   def main(args: Array[String]): Unit = {
     // Create a SparkSession for testing
