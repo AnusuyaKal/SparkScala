@@ -1,6 +1,5 @@
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
-// import spark.implicits._ // Import Spark implicits here
 import org.apache.spark.sql.functions.col
 
 object Kafka_Test {
@@ -40,15 +39,24 @@ object Kafka_Test {
         .option("startingOffsets", "earliest")
         .load()
 
-      
       // Convert the value column to String type
       val messages = df.withColumn("message", col("value").cast("string")).select("message")
 
-      // Now messages is a DataFrame containing only the "message" column with String type
-
-
       // Display Kafka messages
       messages.show()
+
+      // Count the number of rows in the jsonData DataFrame
+      val urlRowCount = jsonData.count()
+
+      // Count the number of rows in the Kafka DataFrame
+      val kafkaRowCount = messages.count()
+
+      // Compare the counts
+      if (urlRowCount == kafkaRowCount) {
+        println("Counts match: Data was successfully published to Kafka topic.")
+      } else {
+        println(s"Counts don't match: URL data count = $urlRowCount, Kafka data count = $kafkaRowCount")
+      }
 
       // Stop SparkSession
       spark.stop()
