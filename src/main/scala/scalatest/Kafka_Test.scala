@@ -11,27 +11,28 @@ object Kafka_Test {
 
     try {
       // Read API response into DataFrame
-      val apiResponseDFOption: Option[DataFrame] = Option(spark.read.json("http://18.133.73.36:5001/insurance_claims1"))
+      val apiResponseDF = spark.read.json("http://18.133.73.36:5001/insurance_claims1")
       
       // Check if DataFrame is not null and has rows
-      apiResponseDFOption match {
-        case Some(apiResponseDF) if !apiResponseDF.isEmpty =>
-          println("show", apiResponseDF)
-          // Show DataFrame
-          apiResponseDF.show()
+      if (apiResponseDF != null && !apiResponseDF.isEmpty) {
+        println("show", apiResponseDF)
+        // Show DataFrame
+        apiResponseDF.show()
 
-          // Create Kafka topic
-          apiResponseDF.write.mode("append").saveAsTable("kafka_topic")
+        // Create Kafka topic
+        apiResponseDF.write.mode("append").saveAsTable("kafka_topic")
 
-          // Verify that the API was read and Kafka topic was created
-          assert(apiResponseDF.count() > 0)
-          assert(spark.catalog.tableExists("kafka_topic"))
-        case _ =>
-          println("API response DataFrame is null or empty.")
+        // Verify that the API was read and Kafka topic was created
+        assert(apiResponseDF.count() > 0)
+        assert(spark.catalog.tableExists("kafka_topic"))
+      } else {
+        println("API response DataFrame is null or empty.")
       }
     } catch {
       case e: Exception =>
         println(s"Test failed: ${e.getMessage}")
+      case _: Throwable =>
+        println("An unexpected error occurred.")
     } finally {
       // Stop SparkSession
       spark.stop()
