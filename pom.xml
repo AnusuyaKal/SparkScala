@@ -31,10 +31,10 @@
             <version>${kafka.version}</version>
         </dependency>
 	<dependency>
-        <groupId>org.scalatest</groupId>
-        <artifactId>scalatest_2.12</artifactId>
-        <version>3.2.9</version>
-        <scope>test</scope>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.12</artifactId>
+            <version>3.2.9</version>
+            <scope>test</scope>
     	</dependency>		    
         <dependency>
             <groupId>log4j</groupId>
