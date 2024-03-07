@@ -5,7 +5,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.spark.sql.streaming.Trigger
 import java.util.Properties
 
-class MyMainClassTest extends AnyFunSuite {
+class Kafka_Test extends AnyFunSuite {
 
   // Create a SparkSession for testing
   val spark = SparkSession.builder()
