@@ -1,6 +1,7 @@
 package scalatest
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
+import spark.implicits._ // Import Spark implicits here
 
 object Kafka_Test {
   def main(args: Array[String]): Unit = {
@@ -48,9 +49,4 @@ object Kafka_Test {
       // Stop SparkSession
       spark.stop()
     } catch {
-      case e: Exception =>
-        println(s"Error: ${e.getMessage}")
-        e.printStackTrace()
-    }
-  }
-}
+     
