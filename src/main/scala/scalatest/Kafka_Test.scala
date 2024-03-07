@@ -1,20 +1,23 @@
-import org.scalatest.funsuite.AnyFunSuite
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions._
-import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.spark.sql.streaming.Trigger
-import java.util.Properties
 
-class Kafka_Test extends AnyFunSuite {
+object MyMainClassTest {
 
-  // Create a SparkSession for testing
-  val spark = SparkSession.builder()
-    .appName("MyMainClassTest")
-    .master("local[2]")
-    .getOrCreate()
+  def main(args: Array[String]): Unit = {
+    // Create a SparkSession for testing
+    val spark = SparkSession.builder()
+      .appName("MyMainClassTest")
+      .master("local[2]")
+      .getOrCreate()
 
-  // Test case for MyMainClass functionality
-  test("MyMainClass functionality test") {
+    // Test case for MyMainClass functionality
+    testMyMainClassFunctionality(spark)
+
+    // Stop SparkSession after test
+    spark.stop()
+  }
+
+  // Test MyMainClass functionality
+  def testMyMainClassFunctionality(spark: SparkSession): Unit = {
     val url = "http://18.133.73.36:5001/insurance_claims1"
     val topic = "insurance_claims_5-3-12-98"
 
@@ -34,8 +37,5 @@ class Kafka_Test extends AnyFunSuite {
 
     // Verify if messages contain data
     assert(messages.count() > 0)
-
-    // Stop SparkSession after test
-    spark.stop()
   }
 }
