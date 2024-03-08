@@ -1,4 +1,4 @@
-package scalatest
+package scalatest;
 
 import scala.io.Source
 import org.apache.spark.sql.SparkSession
