@@ -21,14 +21,14 @@ object IncrLoad {
       val existingData = spark.read.format("parquet").table("project1db.carinsuranceclaims") // Read the existing table directly
 
       // Read new data from PostgreSQL
-      // val newData = spark.read.jdbc(postgresUrl, "car_insurance_claims1", postgresProperties)
+      // val newData = spark.read.jdbc(postgresUrl, "car_insurance_claims", postgresProperties)
       
-      val whereCondition = """"POLICY_NUMBER" = 2"""
+      val whereCondition = """"ID" = 2"""
       // Read new data from PostgreSQL with the WHERE condition
       // val newData = spark.read.jdbc(postgresUrl, "car_insurance_claims", postgresProperties, predicates = Array(whereCondition))
       // val newData = spark.read.jdbc(postgresUrl, "car_insurance_claims", postgresProperties, predicates = Map("predicates" -> whereCondition))
       // val newData = spark.read.jdbc(s"$postgresUrl?user=consultants&password=WelcomeItc@2022&$whereCondition", "car_insurance_claims", postgresProperties)
-      val query = s"(SELECT * FROM car_insurance_claims1 WHERE $whereCondition) AS data"
+      val query = s"(SELECT * FROM car_insurance_claims WHERE $whereCondition) AS data"
       val newData = spark.read.jdbc(postgresUrl, query, postgresProperties)
 
       newData.show()
