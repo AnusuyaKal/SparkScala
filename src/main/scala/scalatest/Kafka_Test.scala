@@ -25,6 +25,7 @@ val result = Source.fromURL(url).mkString
 
 // Read the JSON data into a DataFrame
 val jsonData = spark.read.json(Seq(result).toDS)
+val urlRowCount = jsonData.count()   
 jsonData.show() // Display the DataFrame contents
 
 // Kafka servers configuration
@@ -85,8 +86,10 @@ messages.collect().foreach { message =>
    put.addColumn(Bytes.toBytes(columnFamilyName), Bytes.toBytes("column"), Bytes.toBytes(message))
    table.put(put)
 }
-
+val kafkaRowCount = df.count()
 // Print summary of operations
+println(s"Number of rows in DataFrame from URL: $urlRowCount")
+println(s"Number of rows in DataFrame from Kafka topic: $kafkaRowCount")   
 println("----------------------------")
 println( "It was the API  : " + url   ) 
 println( "Kafka Topic was : " + topic )
