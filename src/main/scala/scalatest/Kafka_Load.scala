@@ -32,21 +32,55 @@ object Kafka_Load extends App {
   // Kafka servers configuration
   val kafkaServers = "ip-172-31-3-80.eu-west-2.compute.internal:9092,ip-172-31-5-217.eu-west-2.compute.internal:9092,ip-172-31-13-101.eu-west-2.compute.internal:9092,ip-172-31-9-237.eu-west-2.compute.internal:9092"
 
-  // Function to publish data to Kafka
-  jsonData.selectExpr("to_json(struct(*)) AS value")
-    .write.format("kafka")
-    .option("kafka.bootstrap.servers", kafkaServers)
-    .option("topic", topic)
-    .save()
+  // // Function to publish data to Kafka
+  // jsonData.selectExpr("to_json(struct(*)) AS value")
+  //   .write.format("kafka")
+  //   .option("kafka.bootstrap.servers", kafkaServers)
+  //   .option("topic", topic)
+  //   .save()
 
-  // Function to consume data from Kafka and load it into HBase
-  val df = spark.read.format("kafka")
-    .option("kafka.bootstrap.servers", kafkaServers)
-    .option("subscribe", topic)
-    .option("startingOffsets", "earliest")
-    .load()
+  // // Function to consume data from Kafka and load it into HBase
+  // val df = spark.read.format("kafka")
+  //   .option("kafka.bootstrap.servers", kafkaServers)
+  //   .option("subscribe", topic)
+  //   .option("startingOffsets", "earliest")
+  //   .load()
 
-  val messages = df.selectExpr("CAST(value AS STRING) as message")
+  // Kafka servers configuration
+  // Produce data every 5 seconds
+  while (true) {
+    val data = fetchDataFromAPI("http://18.133.73.36:5001/insurance_claims1")
+    jsonData.selectExpr("to_json(struct(*)) AS value")
+      .write.format("kafka")
+      .option("kafka.bootstrap.servers", kafkaServers)
+      .option("topic", topic)
+      .save()
+    println(s"Published data to Kafka at ${java.time.LocalDateTime.now()}")
+    TimeUnit.SECONDS.sleep(5)
+  }
+
+  // Consume data and load into HBase every 10 seconds
+  while (true) {
+    val df = spark.read.format("kafka")
+      .option("kafka.bootstrap.servers", kafkaServers)
+      .option("subscribe", topic)
+      .option("startingOffsets", "earliest")
+      .load()
+
+    val messages = df.selectExpr("CAST(value AS STRING) as message")
+
+    messages.collect().take(1000).foreach { message =>
+      val rowKey = generateUniqueRowKey()
+      val put = new Put(Bytes.toBytes(rowKey))
+      put.addColumn(Bytes.toBytes(columnFamilyName), Bytes.toBytes("data"), Bytes.toBytes(message.getString(0)))
+      table.put(put)
+    }
+
+    println(s"Loaded data from Kafka to HBase at ${java.time.LocalDateTime.now()}")
+    TimeUnit.SECONDS.sleep(10)
+  }
+
+  // val messages = df.selectExpr("CAST(value AS STRING) as message")
 
   // Configure HBase connection
   val hbaseConf = HBaseConfiguration.create()
@@ -92,40 +126,7 @@ object Kafka_Load extends App {
   // Print summary of operations
   println("Finished loading data to HBase.")
 
-  // Kafka servers configuration
-  // Produce data every 5 seconds
-  while (true) {
-    val data = fetchDataFromAPI("http://18.133.73.36:5001/insurance_claims1")
-    jsonData.selectExpr("to_json(struct(*)) AS value")
-      .write.format("kafka")
-      .option("kafka.bootstrap.servers", kafkaServers)
-      .option("topic", topic)
-      .save()
-    println(s"Published data to Kafka at ${java.time.LocalDateTime.now()}")
-    TimeUnit.SECONDS.sleep(5)
-  }
-
-  // Consume data and load into HBase every 10 seconds
-  while (true) {
-    val df = spark.read.format("kafka")
-      .option("kafka.bootstrap.servers", kafkaServers)
-      .option("subscribe", topic)
-      .option("startingOffsets", "earliest")
-      .load()
-
-    val messages = df.selectExpr("CAST(value AS STRING) as message")
-
-    messages.collect().take(1000).foreach { message =>
-      val rowKey = generateUniqueRowKey()
-      val put = new Put(Bytes.toBytes(rowKey))
-      put.addColumn(Bytes.toBytes(columnFamilyName), Bytes.toBytes("data"), Bytes.toBytes(message.getString(0)))
-      table.put(put)
-    }
-
-    println(s"Loaded data from Kafka to HBase at ${java.time.LocalDateTime.now()}")
-    TimeUnit.SECONDS.sleep(10)
-  }
-
+  
   // Close HBase table and connection to clean up resources
   table.close()
   connection.close()
