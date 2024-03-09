@@ -15,7 +15,7 @@ import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Put, Admin
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName, HColumnDescriptor, HTableDescriptor}
 
 
-object Kafka_HBase_Load extends App {
+object Kafka_Load extends App {
   
   // Define the Kafka topic and HBase table name
   val topic = "insurance_claims_5-3-12-98"
