@@ -8,6 +8,12 @@ import org.apache.hadoop.hbase.{HBaseConfiguration, TableName, HColumnDescriptor
 import java.util.concurrent.TimeUnit
 import scala.util.Random
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.{SparkSession, Encoder}
+import org.apache.spark.sql.Encoders
+import org.apache.hadoop.hbase.util.Bytes
+import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Put, Admin}
+import org.apache.hadoop.hbase.{HBaseConfiguration, TableName, HColumnDescriptor, HTableDescriptor}
+
 
 object Kafka_HBase_Load extends App {
   
