@@ -58,7 +58,8 @@ object Kafka_Load extends App {
       .load()
 
     // Convert Kafka messages to string for processing
-    val messages = df.selectExpr("CAST(value AS STRING)").as[String]
+    val messages = df.selectExpr("CAST(value AS STRING) as message").as[String]
+
 
     // Configure HBase connection
     val hbaseConf = HBaseConfiguration.create()
