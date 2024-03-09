@@ -60,7 +60,7 @@ object Kafka_Load extends App {
   }
   
   // Consume data and load into HBase every 10 seconds
-  while (true) {
+  while (false) {
       val df = spark.read.format("kafka")
       .option("kafka.bootstrap.servers", kafkaServers)
       .option("subscribe", topic)
