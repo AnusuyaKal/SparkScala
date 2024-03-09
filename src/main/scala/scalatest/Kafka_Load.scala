@@ -100,8 +100,8 @@ object Kafka_Load extends App {
   }
 
   // Kafka servers configuration
-  val kafkaServers = "kafka-server1:9092,kafka-server2:9092,kafka-server3:9092"
-  val topic = "insurance_claims_topic"
+  // val kafkaServers = "kafka-server1:9092,kafka-server2:9092,kafka-server3:9092"
+  // val topic = "insurance_claims_topic"
 
   // Produce data every 5 seconds
   while (true) {
