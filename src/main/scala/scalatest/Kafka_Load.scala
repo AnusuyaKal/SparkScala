@@ -66,7 +66,7 @@ object Kafka_Load extends App {
       .option("subscribe", topic)
       .option("startingOffsets", "earliest")
       .load()
-
+  }
   val messages = df.selectExpr("CAST(value AS STRING) as message")
 
    
