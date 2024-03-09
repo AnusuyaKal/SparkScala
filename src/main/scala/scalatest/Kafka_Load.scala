@@ -75,4 +75,36 @@ object Kafka_HBase_Load extends App {
       s"$currentTime-${random.nextInt(10000)}"
     }
 
-    // Insert e
+    // Insert each Kafka message into HBase
+    messages.collect().take(1000).foreach { message =>
+      val rowKey = generateUniqueRowKey()
+      val put = new Put(Bytes.toBytes(rowKey))
+      put.addColumn(Bytes.toBytes(columnFamilyName), Bytes.toBytes("data"), Bytes.toBytes(message))
+      table.put(put)
+    }
+
+    // Print summary of operations
+    println("Finished loading data to HBase.")
+
+    // Close HBase table and connection to clean up resources
+    table.close()
+    connection.close()
+
+    spark.stop()
+  }
+
+  // Kafka servers configuration
+  val kafkaServers = "ip-172-31-3-80.eu-west-2.compute.internal:9092,ip-172-31-5-217.eu-west-2.compute.internal:9092,ip-172-31-13-101.eu-west-2.compute.internal:9092,ip-172-31-9-237.eu-west-2.compute.internal:9092"
+  val topic = "kafka_hbase_topic"
+
+  // Produce every 5 seconds
+  while (true) {
+    val data = generateRandomData(1000)
+    publishToKafka(data, topic, kafkaServers)
+    println("Published data to Kafka.")
+    TimeUnit.SECONDS.sleep(5)
+    consumeAndLoadToHBase(topic, kafkaServers) // Load to HBase after producing
+    TimeUnit.SECONDS.sleep(5) // Wait 5 seconds before producing again
+  }
+
+} // <-- Ensure there's a closing brace here
