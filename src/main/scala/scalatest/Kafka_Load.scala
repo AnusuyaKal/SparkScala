@@ -67,20 +67,9 @@ object Kafka_Load extends App {
       .option("startingOffsets", "earliest")
       .load()
 
-    val messages = df.selectExpr("CAST(value AS STRING) as message")
+  val messages = df.selectExpr("CAST(value AS STRING) as message")
 
-    messages.collect().take(1000).foreach { message =>
-      val rowKey = generateUniqueRowKey()
-      val put = new Put(Bytes.toBytes(rowKey))
-      put.addColumn(Bytes.toBytes(columnFamilyName), Bytes.toBytes("data"), Bytes.toBytes(message.getString(0)))
-      table.put(put)
-    }
-
-    println(s"Loaded data from Kafka to HBase at ${java.time.LocalDateTime.now()}")
-    TimeUnit.SECONDS.sleep(10)
-  }
-
-  // val messages = df.selectExpr("CAST(value AS STRING) as message")
+   
 
   // Configure HBase connection
   val hbaseConf = HBaseConfiguration.create()
