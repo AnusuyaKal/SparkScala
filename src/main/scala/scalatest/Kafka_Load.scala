@@ -38,7 +38,7 @@ object Kafka_HBase_Load extends App {
       .option("subscribe", topic)
       .load()
 
-    val messages = df.selectExpr("CAST(value AS STRING)").as[String]
+  val messages = df.select($"value".cast("string")).as[String]
 
     // Configure HBase connection
     val hbaseConf = HBaseConfiguration.create()
