@@ -7,40 +7,33 @@ import org.apache.hadoop.hbase.{HBaseConfiguration, TableName, HColumnDescriptor
 import java.util.concurrent.TimeUnit
 import scala.util.Random
 
-// object KafkaHBaseProcessor extends App {
+object Kafka_Load extends App {
 
-//   // Function to fetch data from API
-//   def fetchDataFromAPI(apiUrl: String): String = {
-//     Source.fromURL(apiUrl).mkString
-//   }
-object Kafka_Load extends App{
+  //####################################################
+  // Parameters for the script
+  val url   = "http://18.133.73.36:5001/insurance_claims1" // API URL to fetch the JSON data
+  val topic = "insurance_claims_5-3-12-98" // Kafka topic name & table name in HBase (or Hive)
+  //####################################################
 
-//####################################################
-// Parameters for the script
-val url   = "http://18.133.73.36:5001/insurance_claims1" // API URL to fetch the JSON data
-val topic = "insurance_claims_5-3-12-98" // Kafka topic name & table name in HBase (or Hive)
-//####################################################
+  // Initialize Spark session for DataFrame and Dataset APIs
+  val spark = SparkSession.builder.appName("API to Kafka _ 2").getOrCreate()
 
-// Initialize Spark session for DataFrame and Dataset APIs
-val spark = SparkSession.builder.appName("API to Kafka _ 2").getOrCreate()
+  // Correctly import Spark SQL implicits
+  import spark.implicits._
 
-// Correctly import Spark SQL implicits
-import spark.implicits._
+  // Fetch data from URL and convert it to a string
+  val result = Source.fromURL(url).mkString
 
-// Fetch data from URL and convert it to a string
-val result = Source.fromURL(url).mkString
+  // Read the JSON data into a DataFrame
+  val jsonData = spark.read.json(Seq(result).toDS)
+  jsonData.show() // Display the DataFrame contents
 
-// Read the JSON data into a DataFrame
-val jsonData = spark.read.json(Seq(result).toDS)
-jsonData.show() // Display the DataFrame contents
-
-// Kafka servers configuration
-val kafkaServers = "ip-172-31-3-80.eu-west-2.compute.internal:9092,ip-172-31-5-217.eu-west-2.compute.internal:9092,ip-172-31-13-101.eu-west-2.compute.internal:9092,ip-172-31-9-237.eu-west-2.compute.internal:9092"
-
+  // Kafka servers configuration
+  val kafkaServers = "ip-172-31-3-80.eu-west-2.compute.internal:9092,ip-172-31-5-217.eu-west-2.compute.internal:9092,ip-172-31-13-101.eu-west-2.compute.internal:9092,ip-172-31-9-237.eu-west-2.compute.internal:9092"
 
   // Function to publish data to Kafka
-  // def publishToKafka(data: String, topic: String, kafkaServers: String, spark: SparkSession): Unit = {
-  //   val jsonData = spark.read.json(Seq(data).toDS())
+  def publishToKafka(data: String, topic: String, kafkaServers: String, spark: SparkSession): Unit = {
+    val jsonData = spark.read.json(Seq(data).toDS())
     jsonData.selectExpr("to_json(struct(*)) AS value").write.format("kafka")
       .option("kafka.bootstrap.servers", kafkaServers)
       .option("topic", topic)
@@ -48,7 +41,7 @@ val kafkaServers = "ip-172-31-3-80.eu-west-2.compute.internal:9092,ip-172-31-5-2
   }
 
   // Function to consume data from Kafka and load it into HBase
-  // def consumeAndLoadToHBase(topic: String, kafkaServers: String, spark: SparkSession): Unit = {
+  def consumeAndLoadToHBase(topic: String, kafkaServers: String, spark: SparkSession): Unit = {
     val df = spark.read.format("kafka")
       .option("kafka.bootstrap.servers", kafkaServers)
       .option("subscribe", topic)
@@ -101,19 +94,14 @@ val kafkaServers = "ip-172-31-3-80.eu-west-2.compute.internal:9092,ip-172-31-5-2
     // Print summary of operations
     println("Finished loading data to HBase.")
 
-  //   // Close HBase table and connection to clean up resources
-  //   table.close()
-  //   connection.close()
-  // }
+    // Close HBase table and connection to clean up resources
+    table.close()
+    connection.close()
+  }
 
   // Kafka servers configuration
   val kafkaServers = "kafka-server1:9092,kafka-server2:9092,kafka-server3:9092"
   val topic = "insurance_claims_topic"
-
-  // Initialize Spark session
-  val spark = SparkSession.builder()
-    .appName("KafkaHBaseProcessor")
-    .getOrCreate()
 
   // Produce data every 5 seconds
   while (true) {
