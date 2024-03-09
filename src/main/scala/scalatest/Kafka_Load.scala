@@ -46,7 +46,7 @@ object Kafka_Load extends App {
       .option("startingOffsets", "earliest")
       .load()
     println(s"Loaded data from Kafka to HBase at ${java.time.LocalDateTime.now()}")
-    val messages = df.selectExpr("CAST(value AS STRING) as message")
+    val messages = df.selectExpr("CAST(value AS STRING) as message").as[String]
     val hbaseConf = HBaseConfiguration.create()
     hbaseConf.set("hbase.zookeeper.quorum", "zookeeper-server1,zookeeper-server2,zookeeper-server3")
     hbaseConf.set("hbase.zookeeper.property.clientPort", "2181")
