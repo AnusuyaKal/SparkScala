@@ -101,10 +101,10 @@ val kafkaServers = "ip-172-31-3-80.eu-west-2.compute.internal:9092,ip-172-31-5-2
     // Print summary of operations
     println("Finished loading data to HBase.")
 
-    // Close HBase table and connection to clean up resources
-    table.close()
-    connection.close()
-  }
+  //   // Close HBase table and connection to clean up resources
+  //   table.close()
+  //   connection.close()
+  // }
 
   // Kafka servers configuration
   val kafkaServers = "kafka-server1:9092,kafka-server2:9092,kafka-server3:9092"
