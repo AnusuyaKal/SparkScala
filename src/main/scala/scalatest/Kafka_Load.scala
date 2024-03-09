@@ -1,74 +1,111 @@
-package scalatest;
-import java.util.Properties
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
-import org.apache.kafka.clients.consumer.{ConsumerConfig, KafkaConsumer}
-import org.apache.kafka.common.serialization.StringDeserializer
-import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Put}
+package scalatest
+
+import scala.io.Source
+import org.apache.spark.sql.SparkSession
 import org.apache.hadoop.hbase.util.Bytes
-import scala.collection.JavaConverters._
+import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Put, Admin}
+import org.apache.hadoop.hbase.{HBaseConfiguration, TableName, HColumnDescriptor, HTableDescriptor}
+import java.util.concurrent.TimeUnit
 import scala.util.Random
-import scala.concurrent.duration._
 
-object Kafka_Load {
-  val kafkaConfig = Map[String, Object](
-    ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG -> "<kafka_broker>",
-    ConsumerConfig.GROUP_ID_CONFIG -> "my_group",
-    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG -> classOf[StringDeserializer],
-    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG -> classOf[StringDeserializer]
-  )
+object Kafka_HBase_Load extends App {
 
-  val hbaseConfig: org.apache.hadoop.conf.Configuration = ??? // Define your HBase configuration here
-
-  val topic = "Kafka1"
-  val tableName = "Anu_Tab"
-
-  def produceData(): Unit = {
-    val props = new Properties()
-    props.put("bootstrap.servers", "<kafka_broker>")
-    props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-    props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-
-    val producer = new KafkaProducer[String, String](props)
-
-    while (true) {
-      val records = (1 to 1000).map(_ => Random.nextInt(1000))
-      records.foreach { record =>
-        val data = s"""{"id": $record, "data": ${Random.nextInt(100)}}"""
-        producer.send(new ProducerRecord[String, String](topic, data))
-      }
-      Thread.sleep(5.seconds.toMillis)
-    }
+  // Function to generate random data
+  def generateRandomData(numRecords: Int): Seq[String] = {
+    val random = new Random()
+    (1 to numRecords).map(_ => random.nextInt(1000).toString)
   }
 
-  def consumeAndStoreData(): Unit = {
-    val consumer = new KafkaConsumer[String, String](kafkaConfig.asJava)
-    consumer.subscribe(List(topic).asJava)
-
-    val connection: Connection = ConnectionFactory.createConnection(hbaseConfig)
-    val table = connection.getTable(org.apache.hadoop.hbase.TableName.valueOf(tableName))
-
-    while (true) {
-      val records = consumer.poll(10.seconds.toMillis)
-      records.asScala.foreach { record =>
-        val data = record.value().split(", ").map(_.split(": ")(1))
-        val rowKey = data(0).drop(1).init
-        val put = new Put(Bytes.toBytes(rowKey))
-        put.addColumn(Bytes.toBytes("cf"), Bytes.toBytes("data"), Bytes.toBytes(data(1)))
-        table.put(put)
-        println(s"Data stored in HBase: $record")
-      }
-    }
+  // Function to publish data to Kafka
+  def publishToKafka(data: Seq[String], topic: String, kafkaServers: String): Unit = {
+    val spark = SparkSession.builder.appName("Producer").getOrCreate()
+    import spark.implicits._
+    spark.sparkContext.parallelize(data).toDF("value")
+      .write
+      .format("kafka")
+      .option("kafka.bootstrap.servers", kafkaServers)
+      .option("topic", topic)
+      .save()
+    spark.stop()
   }
 
-  def main(args: Array[String]): Unit = {
-    val producerThread = new Thread(new Runnable {
-      override def run(): Unit = produceData()
-    })
-    val consumerThread = new Thread(new Runnable {
-      override def run(): Unit = consumeAndStoreData()
-    })
+  // Function to consume data from Kafka and load it into HBase
+  def consumeAndLoadToHBase(topic: String, kafkaServers: String): Unit = {
+    val spark = SparkSession.builder.appName("Consumer").getOrCreate()
+    val df = spark.read
+      .format("kafka")
+      .option("kafka.bootstrap.servers", kafkaServers)
+      .option("subscribe", topic)
+      .load()
 
-    producerThread.start()
-    consumerThread.start()
+    val messages = df.selectExpr("CAST(value AS STRING)").as[String]
+
+    // Configure HBase connection
+    val hbaseConf = HBaseConfiguration.create()
+    hbaseConf.set("hbase.zookeeper.quorum", "ip-172-31-3-80.eu-west-2.compute.internal,ip-172-31-5-217.eu-west-2.compute.internal,ip-172-31-9-237.eu-west-2.compute.internal")
+    hbaseConf.set("hbase.zookeeper.property.clientPort", "2181")
+    hbaseConf.set("zookeeper.znode.parent", "/hbase")
+    
+    // Establish HBase connection
+    val connection = ConnectionFactory.createConnection(hbaseConf)
+
+    // Prepare HBase table for storing the messages
+    val tableName = TableName.valueOf(topic)
+    val columnFamilyName = "cf"
+    val admin = connection.getAdmin
+
+    // Check if table exists, if not, create it
+    if (!admin.tableExists(tableName)) {
+      val tableDescriptor = new HTableDescriptor(tableName)
+      val columnDescriptor = new HColumnDescriptor(columnFamilyName)
+      tableDescriptor.addFamily(columnDescriptor)
+      admin.createTable(tableDescriptor)
+      println(s"Table $tableName created.")
+    }
+
+    // Get the HBase table
+    val table = connection.getTable(tableName)
+
+    // Function to generate unique row keys for messages
+    def generateUniqueRowKey(): String = {
+      val currentTime = System.currentTimeMillis()
+      val random = new Random()
+      s"$currentTime-${random.nextInt(10000)}"
+    }
+
+    // Insert each Kafka message into HBase
+    messages.collect().take(1000).foreach { message =>
+      val rowKey = generateUniqueRowKey()
+      val put = new Put(Bytes.toBytes(rowKey))
+      put.addColumn(Bytes.toBytes(columnFamilyName), Bytes.toBytes("data"), Bytes.toBytes(message))
+      table.put(put)
+    }
+
+    // Print summary of operations
+    println("Finished loading data to HBase.")
+
+    // Close HBase table and connection to clean up resources
+    table.close()
+    connection.close()
+
+    spark.stop()
+  }
+
+  // Kafka servers configuration
+  val kafkaServers = "ip-172-31-3-80.eu-west-2.compute.internal:9092,ip-172-31-5-217.eu-west-2.compute.internal:9092,ip-172-31-13-101.eu-west-2.compute.internal:9092,ip-172-31-9-237.eu-west-2.compute.internal:9092"
+  val topic = "kafka_hbase_topic"
+
+  // Produce every 5 seconds
+  while (true) {
+    val data = generateRandomData(1000)
+    publishToKafka(data, topic, kafkaServers)
+    println("Published data to Kafka.")
+    TimeUnit.SECONDS.sleep(5)
+  }
+
+  // Consume every 10 seconds
+  while (true) {
+    consumeAndLoadToHBase(topic, kafkaServers)
+    TimeUnit.SECONDS.sleep(10)
   }
 }
