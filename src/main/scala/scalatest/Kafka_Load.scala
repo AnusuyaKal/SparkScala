@@ -93,9 +93,6 @@ object Kafka_Load extends App {
   println("Finished loading data to HBase.")
 
   // Kafka servers configuration
-  val kafkaServers = "kafka-server1:9092,kafka-server2:9092,kafka-server3:9092"
-  val topic = "insurance_claims_topic"
-
   // Produce data every 5 seconds
   while (true) {
     val data = fetchDataFromAPI("http://18.133.73.36:5001/insurance_claims1")
