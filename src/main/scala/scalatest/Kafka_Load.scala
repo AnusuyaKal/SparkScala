@@ -60,7 +60,7 @@ object Kafka_Load extends App {
   }
   
   // Consume data and load into HBase every 10 seconds
-  while (false) {
+  while (true) {
       val df = spark.read.format("kafka")
       .option("kafka.bootstrap.servers", kafkaServers)
       .option("subscribe", topic)
@@ -111,7 +111,7 @@ object Kafka_Load extends App {
     put.addColumn(Bytes.toBytes(columnFamilyName), Bytes.toBytes("data"), Bytes.toBytes(message.getString(0)))
     table.put(put)
   }
-
+  TimeUnit.SECONDS.sleep(10)
   // Print summary of operations
   println("Finished loading data to HBase.")
 
