@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 import scala.util.Random
 import org.apache.spark.sql.functions._
 
-object Kafka_HBase_Load extends App {
+object Kafka_Load extends App {
 
   // Function to generate random data
   def generateRandomData(numRecords: Int): Seq[String] = {
