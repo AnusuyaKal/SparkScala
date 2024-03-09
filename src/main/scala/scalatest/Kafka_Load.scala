@@ -58,10 +58,10 @@ object Kafka_Load extends App {
     println(s"Published data to Kafka at ${java.time.LocalDateTime.now()}")
     TimeUnit.SECONDS.sleep(5)
   }
-  val df
+  
   // Consume data and load into HBase every 10 seconds
   while (true) {
-      df = spark.read.format("kafka")
+      val df = spark.read.format("kafka")
       .option("kafka.bootstrap.servers", kafkaServers)
       .option("subscribe", topic)
       .option("startingOffsets", "earliest")
