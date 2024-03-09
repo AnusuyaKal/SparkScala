@@ -17,13 +17,10 @@ object KafkaHBaseIntegration {
     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG -> classOf[StringDeserializer]
   )
 
-  val hbaseConfig = Map(
-    "hbase.zookeeper.quorum" -> "<hbase_zookeeper_quorum>",
-    "hbase.zookeeper.property.clientPort" -> "<hbase_zookeeper_client_port>"
-  )
+  val hbaseConfig: org.apache.hadoop.conf.Configuration = ??? // Define your HBase configuration here
 
-  val topic = "<kafka_topic>"
-  val tableName = "my_table"
+  val topic = "Kafka1"
+  val tableName = "Anu_Tab"
 
   def produceData(): Unit = {
     val props = new Properties()
@@ -47,7 +44,7 @@ object KafkaHBaseIntegration {
     val consumer = new KafkaConsumer[String, String](kafkaConfig.asJava)
     consumer.subscribe(List(topic).asJava)
 
-    val connection: Connection = ConnectionFactory.createConnection(hbaseConfig.asJava)
+    val connection: Connection = ConnectionFactory.createConnection(hbaseConfig)
     val table = connection.getTable(org.apache.hadoop.hbase.TableName.valueOf(tableName))
 
     while (true) {
@@ -64,8 +61,12 @@ object KafkaHBaseIntegration {
   }
 
   def main(args: Array[String]): Unit = {
-    val producerThread = new Thread(() => produceData())
-    val consumerThread = new Thread(() => consumeAndStoreData())
+    val producerThread = new Thread(new Runnable {
+      override def run(): Unit = produceData()
+    })
+    val consumerThread = new Thread(new Runnable {
+      override def run(): Unit = consumeAndStoreData()
+    })
 
     producerThread.start()
     consumerThread.start()
