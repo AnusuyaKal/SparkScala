@@ -9,7 +9,7 @@ import scala.collection.JavaConverters._
 import scala.util.Random
 import scala.concurrent.duration._
 
-object KafkaHBaseIntegration {
+object Kafka_Load {
   val kafkaConfig = Map[String, Object](
     ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG -> "<kafka_broker>",
     ConsumerConfig.GROUP_ID_CONFIG -> "my_group",
