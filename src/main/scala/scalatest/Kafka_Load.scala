@@ -1,5 +1,6 @@
 package scalatest
 
+import org.apache.spark.sql.SparkSession
 import scala.io.Source
 import org.apache.spark.sql.SparkSession
 import org.apache.hadoop.hbase.util.Bytes
