@@ -85,7 +85,17 @@ messages.collect().foreach { message =>
    val put = new Put(Bytes.toBytes(rowKey))
    put.addColumn(Bytes.toBytes(columnFamilyName), Bytes.toBytes("column"), Bytes.toBytes(message))
    table.put(put)
+   }
+   // Count rows in HBase table
+val scanner = table.getScanner(new Scan())
+var rowCount = 0
+while (scanner.next() != null) {
+  rowCount += 1
 }
+scanner.close()
+
+// Display the count of rows in the HBase table
+println(s"Number of rows in HBase table: $rowCount")
 val kafkaRowCount = df.count()
 // Print summary of operations
 println(s"Number of rows in DataFrame from URL: $urlRowCount")
