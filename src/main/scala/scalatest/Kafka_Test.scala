@@ -12,7 +12,8 @@ object Kafka_Test extends App{
 val tableName = "insurance_claims_5-3-12-98"
 
 // Define the shell command to count the rows in the HBase table
-val shellCommand = s"echo 'count {\\\"$tableName\\\"}' | hbase shell"
+val shellCommand = s"""echo 'count {"$tableName"}' | hbase shell"""
+
 
 
 // Execute the shell command and capture the output
