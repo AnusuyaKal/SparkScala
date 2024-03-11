@@ -1,4 +1,4 @@
-package scalatest;
+package scalatest
 import org.apache.spark.sql.SparkSession
 
 object FullLoadTest {
