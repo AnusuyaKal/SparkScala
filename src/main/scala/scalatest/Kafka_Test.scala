@@ -106,14 +106,14 @@ messages.collect().foreach { message =>
 // // Count rows in HBase table
 // val hbaseRowCount = s"hbase shell <<< 'count \"$topic\"'".!!.trim.toLong
 
-// Get the Admin object to interact with HBase
-val admin: Admin = connection.getAdmin()
+// // Get the Admin object to interact with HBase
+// val admin: Admin = connection.getAdmin()
 
-// Specify the table name
-val tableName: TableName = TableName.valueOf(table)
+// // Specify the table name
+// val tableName: TableName = TableName.valueOf(table)
 
-// Get the table reference
-val table: Table = connection.getTable(tableName)
+// // Get the table reference
+// val table: Table = connection.getTable(tableName)
 
 // Get the row count
 val rowCount = table.getTableDescriptor().getValue("hbase:meta", "regioninfo").split("\n").length - 3
