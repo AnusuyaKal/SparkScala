@@ -101,7 +101,7 @@ messages.collect().foreach { message =>
 // }
 
 // Count rows in HBase table
-val hbaseRowCount = s"hbase shell <<< 'count \"$topic\"'".!!.trim.toLong
+val hbaseRowCount = s"hbase shell <<< 'count \topic\"'".!!.trim.toLong
 
 // Display the count of rows in the HBase table
 println(s"Number of rows in HBase table: hbaseRowCount")
