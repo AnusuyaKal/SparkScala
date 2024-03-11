@@ -6,6 +6,9 @@ import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Put, Admin}
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName, HColumnDescriptor, HTableDescriptor}
 import scala.sys.process._
+import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
+import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Admin, Table}
+import scala.collection.JavaConverters._
 
 object Kafka_Test extends App{
 
@@ -100,8 +103,28 @@ messages.collect().foreach { message =>
 //   scanner.close()
 // }
 
-// Count rows in HBase table
-val hbaseRowCount = s"hbase shell <<< 'count \"$topic\"'".!!.trim.toLong
+// // Count rows in HBase table
+// val hbaseRowCount = s"hbase shell <<< 'count \"$topic\"'".!!.trim.toLong
+
+// Get the Admin object to interact with HBase
+val admin: Admin = connection.getAdmin()
+
+// Specify the table name
+val tableName: TableName = TableName.valueOf(table)
+
+// Get the table reference
+val table: Table = connection.getTable(tableName)
+
+// Get the row count
+val rowCount = table.getTableDescriptor().getValue("hbase:meta", "regioninfo").split("\n").length - 3
+
+// Print the row count
+println(s"Row count in table $tableName: $rowCount")
+
+// Close resources
+table.close()
+admin.close()
+connection.close()
 
 
 // Display the count of rows in the HBase table
