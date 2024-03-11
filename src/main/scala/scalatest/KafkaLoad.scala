@@ -2,9 +2,9 @@ package scalatest;
 import scala.io.Source
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
-import org.apache.hadoop.hbase.util.Bytes
-import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Put, Admin}
-import org.apache.hadoop.hbase.{HBaseConfiguration, TableName, HColumnDescriptor, HTableDescriptor}
+//import org.apache.hadoop.hbase.util.Bytes
+//import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Put, Admin}
+//import org.apache.hadoop.hbase.{HBaseConfiguration, TableName, HColumnDescriptor, HTableDescriptor}
 import scala.util.Random
 
 object KafkaLoad extends App {
