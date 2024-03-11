@@ -5,6 +5,7 @@ import org.apache.spark.sql.SparkSession
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Put, Admin}
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName, HColumnDescriptor, HTableDescriptor}
+import scala.sys.process._
 
 object Kafka_Test extends App{
 
@@ -86,21 +87,24 @@ messages.collect().foreach { message =>
    put.addColumn(Bytes.toBytes(columnFamilyName), Bytes.toBytes("column"), Bytes.toBytes(message))
    table.put(put)
    }
+// // Count rows in HBase table
+// val scanner: ResultScanner = table.getScanner(new Scan())
+// var rowCount: Long = 0
+// try {
+//   val iterator = scanner.iterator()
+//   while (iterator.hasNext) {
+//     iterator.next()
+//     rowCount += 1
+//   }
+// } finally {
+//   scanner.close()
+// }
+
 // Count rows in HBase table
-val scanner: ResultScanner = table.getScanner(new Scan())
-var rowCount: Long = 0
-try {
-  val iterator = scanner.iterator()
-  while (iterator.hasNext) {
-    iterator.next()
-    rowCount += 1
-  }
-} finally {
-  scanner.close()
-}
+val hbaseRowCount = s"hbase shell <<< 'count \"$topic\"'".!!.trim.toLong
 
 // Display the count of rows in the HBase table
-println(s"Number of rows in HBase table: $rowCount")
+println(s"Number of rows in HBase table: hbaseRowCount")
 val kafkaRowCount = df.count()
 // Print summary of operations
 println(s"Number of rows in DataFrame from URL: $urlRowCount")
