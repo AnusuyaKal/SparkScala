@@ -1,4 +1,4 @@
-package scalatest
+epackage scalatest
 
 import org.apache.spark.sql.SparkSession
 
@@ -18,17 +18,17 @@ object IncrLoad {
 
     try {
       // Read existing data from Hive table
-      val existingData = spark.read.format("parquet").table("project1db.carinsuranceclaims") // Read the existing table directly
+      val existingData = spark.read.format("parquet").table("people") // Read the existing table directly
 
       // Read new data from PostgreSQL
-      // val newData = spark.read.jdbc(postgresUrl, "car_insurance_claims1", postgresProperties)
+      // val newData = spark.read.jdbc(postgresUrl, "people", postgresProperties)
       
       val whereCondition = """"people_id" >= 12"""
       // Read new data from PostgreSQL with the WHERE condition
       // val newData = spark.read.jdbc(postgresUrl, "car_insurance_claims", postgresProperties, predicates = Array(whereCondition))
       // val newData = spark.read.jdbc(postgresUrl, "car_insurance_claims", postgresProperties, predicates = Map("predicates" -> whereCondition))
       // val newData = spark.read.jdbc(s"$postgresUrl?user=consultants&password=WelcomeItc@2022&$whereCondition", "car_insurance_claims", postgresProperties)
-      val query = s"(SELECT * FROM car_insurance_claims1 WHERE $whereCondition) AS data"
+      val query = s"(SELECT * FROM people WHERE $whereCondition) AS data"
       val newData = spark.read.jdbc(postgresUrl, query, postgresProperties)
 
       newData.show()
@@ -49,7 +49,7 @@ object IncrLoad {
         println("No new data to load. Incremental load test passed.")
       } else {
         // Append new data to Hive table
-        incrementalData.write.mode("append").format("parquet").saveAsTable("project1db.carinsuranceclaims")
+        incrementalData.write.mode("append").format("parquet").saveAsTable("people")
         println("Incremental load successful.")
       }
     } catch {
