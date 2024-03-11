@@ -87,7 +87,17 @@ messages.collect().foreach { message =>
    table.put(put)
    }
 // Count rows in HBase table
-val rowCount = table.getTableDescriptor().getValue(TableName.NS_QUALIFIER_NAME)
+val scanner: ResultScanner = table.getScanner(new Scan())
+var rowCount: Long = 0
+try {
+  val iterator = scanner.iterator()
+  while (iterator.hasNext) {
+    iterator.next()
+    rowCount += 1
+  }
+} finally {
+  scanner.close()
+}
 
 // Display the count of rows in the HBase table
 println(s"Number of rows in HBase table: $rowCount")
