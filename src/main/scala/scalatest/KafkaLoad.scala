@@ -8,7 +8,7 @@ import org.apache.hadoop.hbase.{HBaseConfiguration, TableName, HColumnDescriptor
 import java.util.concurrent.TimeUnit
 import scala.util.Random
 
-object Kafka_Load extends App {
+object KafkaLoad extends App {
 
   // Parameters for the script
   val url   = "http://18.133.73.36:5001/insurance_claims1" // API URL to fetch the JSON data
