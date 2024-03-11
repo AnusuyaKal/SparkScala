@@ -1,3 +1,4 @@
+package scalatest;
 import scala.io.Source
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
