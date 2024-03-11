@@ -31,7 +31,11 @@ object KafkaLoad extends App {
   jsonData.show() // Display the DataFrame contents
 
   // Kafka servers configuration
-  val kafkaServers = "ip-172-31-3-80.eu-west-2.compute.internal:9092,ip-172-31-5-217.eu-west-2.compute.internal:9092,ip-172-31-13-101.eu-west-2.compute.internal:9092,ip-172-31-9-237.eu-west-2.compute.internal:9092"
+  val kafkaServers =
+    """ip-172-31-3-80.eu-west-2.compute.internal:9092,
+      |ip-172-31-5-217.eu-west-2.compute.internal:9092,
+      |ip-172-31-13-101.eu-west-2.compute.internal:9092,
+      |ip-172-31-9-237.eu-west-2.compute.internal:9092""".stripMargin
 
   // Produce data to Kafka
   val data = fetchDataFromAPI(url)
