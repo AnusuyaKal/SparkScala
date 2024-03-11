@@ -7,7 +7,7 @@ import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Put, Admin
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName, HColumnDescriptor, HTableDescriptor}
 import scala.util.Random
 
-object Kafka_Load extends App {
+object KafkaLoad extends App {
 
   // Parameters for the script
   val url   = "http://18.133.73.36:5001/insurance_claims1" // API URL to fetch the JSON data
