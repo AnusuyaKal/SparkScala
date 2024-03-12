@@ -5,7 +5,7 @@ import org.apache.hadoop.hbase.client.{ConnectionFactory, Scan, ResultScanner}
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
 import org.apache.hadoop.hbase.util.Bytes
 
-object KafkaTest {
+object HBase_Test {
   def main(args: Array[String]): Unit = {
     println("#####################################################")
     println( "The Program is running.." )
