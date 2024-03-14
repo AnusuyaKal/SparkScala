@@ -23,12 +23,15 @@ object IncrLoad {
       val query = s"(SELECT people_id AS people_id, name AS full_name, age AS current_age, occupation AS occupation FROM people WHERE $whereCondition) AS data"
       val newData = spark.read.jdbc(postgresUrl, query, postgresProperties)
 
-      // Identify new rows by performing a left anti join
-      val incrementalData = newData.join(existingData, newData("people_id") === existingData("people_id"), "left_anti")
+      // Rename columns to align with Hive schema
+      val renamedNewData = newData.withColumnRenamed("people_id", "people_id").withColumnRenamed("full_name", "name").withColumnRenamed("current_age", "age").withColumnRenamed("occupation", "occupation")
 
-      println("New_Data", newData.count()) 
+      // Identify new rows by performing a left anti join
+      val incrementalData = renamedNewData.join(existingData, renamedNewData("people_id") === existingData("people_id"), "left_anti")
+
+      println("New_Data", renamedNewData.count()) 
       println("Existing_Data", existingData.count())
-      if (newData.count() == incrementalData.count() + existingData.count()){
+      if (renamedNewData.count() == incrementalData.count() + existingData.count()){
         println("Count Matches")
       }
 
