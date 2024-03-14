@@ -21,7 +21,7 @@ object IncrLoad {
       val existingData = spark.read.format("parquet").table("usukprjdb.people") // Read the existing table directly
 
       // Read new data from PostgreSQL
-      // val newData = spark.read.jdbc(postgresUrl, "people", postgresProperties)
+      // val newData = spark.read.jdbc(postgresUrl, "people2", postgresProperties)
       
       val whereCondition = """"people_id" > 0"""
       // Read new data from PostgreSQL with the WHERE condition
