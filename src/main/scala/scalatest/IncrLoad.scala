@@ -1,3 +1,5 @@
+package scalatest
+
 import org.apache.spark.sql.SparkSession
 
 object IncrLoad {
@@ -18,20 +20,28 @@ object IncrLoad {
       // Read existing data from Hive table
       val existingData = spark.read.format("parquet").table("usukprjdb.people") // Read the existing table directly
 
-      // Read new data from PostgreSQL with column name mapping
-      val whereCondition = """"people_id" > 18"""
-      val query = s"(SELECT people_id AS people_id, name AS full_name, age AS current_age, occupation AS occupation FROM people WHERE $whereCondition) AS data"
+      // Read new data from PostgreSQL
+      // val newData = spark.read.jdbc(postgresUrl, "people", postgresProperties)
+      
+      val whereCondition = """"people_id" > 0"""
+      // Read new data from PostgreSQL with the WHERE condition
+      // val newData = spark.read.jdbc(postgresUrl, "car_insurance_claims", postgresProperties, predicates = Array(whereCondition))
+      // val newData = spark.read.jdbc(postgresUrl, "car_insurance_claims", postgresProperties, predicates = Map("predicates" -> whereCondition))
+      // val newData = spark.read.jdbc(s"$postgresUrl?user=consultants&password=WelcomeItc@2022&$whereCondition", "car_insurance_claims", postgresProperties)
+      val query = s"(SELECT * FROM people WHERE $whereCondition) AS data"
       val newData = spark.read.jdbc(postgresUrl, query, postgresProperties)
 
-      // Rename columns to align with Hive schema
-      val renamedNewData = newData.withColumnRenamed("people_id", "people_id").withColumnRenamed("full_name", "name").withColumnRenamed("current_age", "age").withColumnRenamed("occupation", "occupation")
+      newData.show()
+
+
 
       // Identify new rows by performing a left anti join
-      val incrementalData = renamedNewData.join(existingData, renamedNewData("people_id") === existingData("people_id"), "left_anti")
-
-      println("New_Data", renamedNewData.count()) 
+      // val incrementalData = newData.join(existingData, newData.columns, "left_anti")
+      val incrementalData = newData
+      // incrementalData.show()
+      println("New_Data", newData.count()) 
       println("Existing_Data", existingData.count())
-      if (renamedNewData.count() == incrementalData.count() + existingData.count()){
+      if (newData.count() == incrementalData.count() + existingData.count()){
         println("Count Matches")
       }
 
