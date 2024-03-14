@@ -6,8 +6,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>scalatest</groupId>
-    <artifactId>Kafka_Test</artifactId>
-    <version>0.1</version>
+    <artifactId>my-spark-project</artifactId>
+    <version>0.2</version>
 
     <properties>
         <scala.version>2.11.12</scala.version>
