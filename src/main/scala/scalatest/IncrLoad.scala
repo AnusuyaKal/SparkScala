@@ -19,7 +19,7 @@ object IncrLoad {
       val existingData = spark.read.format("parquet").table("usukprjdb.people") // Read the existing table directly
 
       // Read new data from PostgreSQL with column name mapping
-      val whereCondition = """"people_id" > 15"""
+      val whereCondition = """"people_id" > 18"""
       val query = s"(SELECT people_id AS people_id, name AS full_name, age AS current_age, occupation AS occupation FROM people WHERE $whereCondition) AS data"
       val newData = spark.read.jdbc(postgresUrl, query, postgresProperties)
 
