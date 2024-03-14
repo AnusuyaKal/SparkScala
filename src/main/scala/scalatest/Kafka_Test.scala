@@ -11,7 +11,7 @@ object Kafka_Test extends App{
 //####################################################
 // Parameters for the script
 val url   = "http://18.133.73.36:5002/insurance_claims1" // API URL to fetch the JSON data
-val topic = "insurance_claims_5-3-12-98" // Kafka topic name & table name in HBase (or Hive)
+val topic = "InsuranceClaims2" // Kafka topic name & table name in HBase (or Hive)
 //####################################################
 
 // Initialize Spark session for DataFrame and Dataset APIs
