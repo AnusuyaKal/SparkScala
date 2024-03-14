@@ -7,7 +7,7 @@
 
     <groupId>scalatest</groupId>
     <artifactId>my-spark-project</artifactId>
-    <version>0.1</version>
+    <version>1.1</version>
 
     <properties>
         <scala.version>2.11.12</scala.version>
