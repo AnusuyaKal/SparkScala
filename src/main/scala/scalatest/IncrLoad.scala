@@ -43,11 +43,17 @@ object IncrLoad {
       println("Existing_Count", existingData.count())
       println("New_Count", incrementalData.count())
       
-      if (incrementalData.count() == newData.count() + existingData.count()){
+      // if (incrementalData.count() == newData.count() + existingData.count()){
+      //   println("Count Matches")
+      // else:
+      //   println("Not Matches")
+      // }
+      if (incrementalData.count() == newData.count() + existingData.count()) {
         println("Count Matches")
-      else:
+      } else {
         println("Not Matches")
       }
+
 
       if (incrementalData.isEmpty) {
         println("No new data to load. Incremental load test passed.")
