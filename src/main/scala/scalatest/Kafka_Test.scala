@@ -11,7 +11,7 @@
 // //####################################################
 // // Parameters for the script
 // val url   = "http://18.133.73.36:5002/insurance_claims1" // API URL to fetch the JSON data
-// val topic = "InsuranceClaims2" // Kafka topic name & table name in HBase (or Hive)
+// val topic = " INSURANCE_CLAIM_5" // Kafka topic name & table name in HBase (or Hive)
 // //####################################################
 
 // // Initialize Spark session for DataFrame and Dataset APIs
