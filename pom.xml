@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>scalatest</groupId>
-    <artifactId>IncrLoad</artifactId>
+    <artifactId>HBase_Test</artifactId>
     <version>0.2</version>
 
     <properties>
@@ -92,7 +92,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>scalatest.IncrLoad</mainClass>
+                            <mainClass>scalatest.HBase_Test</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
