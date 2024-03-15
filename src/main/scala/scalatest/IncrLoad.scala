@@ -45,6 +45,8 @@ object IncrLoad {
       
       if (incrementalData.count() == newData.count() + existingData.count()){
         println("Count Matches")
+      else:
+        println("Not Matches")
       }
 
       if (incrementalData.isEmpty) {
