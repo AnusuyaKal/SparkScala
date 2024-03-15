@@ -39,8 +39,10 @@ object IncrLoad {
       // val incrementalData = newData.join(existingData, newData.columns, "left_anti")
       val incrementalData = newData
       // incrementalData.show()
-      println("New_Data", newData.count()) 
-      println("Existing_Data", existingData.count())
+      println("Incremented_Count", newData.count()) 
+      println("Existing_Count", existingData.count())
+      println("New_Count", incrementalData.count())
+      
       if (incrementalData.count() == newData.count() + existingData.count()){
         println("Count Matches")
       }
