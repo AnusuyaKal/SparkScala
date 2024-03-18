@@ -36,8 +36,8 @@ object Trans {
         df.withColumnRenamed(oldName, newName)
       }
 
-      // Write test data to a temporary Hive table
-      dfPostgres.write.mode("overwrite").saveAsTable("usukprjdb.people")
+      // // Write test data to a temporary Hive table
+      // dfPostgres.write.mode("overwrite").saveAsTable("usukprjdb.people")
 
       // Verify if the test data is loaded into the temporary Hive table
       val hiveDataCount = spark.sql("SELECT COUNT(*) FROM usukprjdb.people").collect()(0)(0)
