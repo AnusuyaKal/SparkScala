@@ -5,6 +5,8 @@ import org.apache.spark.sql.SparkSession
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Put, Admin}
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName, HColumnDescriptor, HTableDescriptor}
+import org.apache.spark.sql.types.{StructType, StructField, StringType, IntegerType}
+
 
 object Kafka_Test extends App {
 
