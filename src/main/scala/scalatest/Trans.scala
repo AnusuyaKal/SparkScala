@@ -42,6 +42,8 @@ object Trans {
 
       // Verify if the counts match
       if (postgresCount == hiveDataCount) {
+        println("PostgresCount", postgresCount)
+        println("hiveDataCount", hiveDataCount)
         println("Test passed: Full load from PostgreSQL to Hive successful")
       } else {
         println(s"Test failed: Data count mismatch. PostgreSQL count: $postgresCount, Hive count: $hiveDataCount")
