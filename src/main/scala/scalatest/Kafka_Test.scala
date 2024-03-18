@@ -9,7 +9,7 @@ import org.apache.hadoop.hbase.{HBaseConfiguration, TableName, HColumnDescriptor
 object Kafka_Test extends App {
 
   // Parameters for the script
-  val url = "http://18.133.73.36:5002/insurance_claims1"
+  val url = "http://18.133.73.36:5003/insurance_claims1"
   val topic = "InsuranceClaims2"
 
   // Initialize Spark session for DataFrame and Dataset APIs
