@@ -36,16 +36,15 @@ object Trans {
         df.withColumnRenamed(oldName, newName)
       }
 
-      // // Write test data to a temporary Hive table
-      // dfPostgres.write.mode("overwrite").saveAsTable("usukprjdb.people")
+      // Get the counts of records in PostgreSQL and Hive
+      val postgresCount = dfPostgres.count()
+      val hiveDataCount = spark.sql("SELECT COUNT(*) FROM usukprjdb.people").collect()(0)(0).asInstanceOf[Long]
 
-      // Verify if the test data is loaded into the temporary Hive table
-      val hiveDataCount = spark.sql("SELECT COUNT(*) FROM usukprjdb.people").collect()(0)(0)
-      val testDataCount = dfPostgres.count()
-      if (hiveDataCount == testDataCount) {
+      // Verify if the counts match
+      if (postgresCount == hiveDataCount) {
         println("Test passed: Full load from PostgreSQL to Hive successful")
       } else {
-        println(s"Test failed: Data count mismatch. Expected: $testDataCount, Actual: $hiveDataCount")
+        println(s"Test failed: Data count mismatch. PostgreSQL count: $postgresCount, Hive count: $hiveDataCount")
       }
     } catch {
       case e: Exception =>
