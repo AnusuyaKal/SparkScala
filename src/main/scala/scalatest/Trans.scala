@@ -1,0 +1,58 @@
+package scalatest
+
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions._
+
+object FullLoadTest {
+  def main(args: Array[String]): Unit = {
+    // Create SparkSession for testing
+    val spark: SparkSession = SparkSession.builder()
+      .appName("FullLoadPostgresToHiveTest")
+      .master("local[*]")  // Use local mode for testing
+      .getOrCreate()
+
+    // Define PostgreSQL connection properties for testing
+    val postgresUrl = "jdbc:postgresql://ec2-3-9-191-104.eu-west-2.compute.amazonaws.com:5432/testdb"
+    val postgresProperties = new java.util.Properties()
+    postgresProperties.put("user", "consultants")
+    postgresProperties.put("password", "WelcomeItc@2022")
+    postgresProperties.put("driver", "org.postgresql.Driver")
+    
+    try {
+      // Read test data from PostgreSQL into a DataFrame
+      var dfPostgres = spark.read.jdbc(postgresUrl, "people", postgresProperties)
+
+      // Get the existing column names
+      val existingColumns = dfPostgres.columns
+
+      // Generate new column names by appending a suffix
+      val newColumns = existingColumns.map(_ + "_new")
+
+      // Create a map of old column names to new column names
+      val columnMap = existingColumns.zip(newColumns).toMap
+
+      // Apply column renames using foldLeft
+      dfPostgres = columnMap.foldLeft(dfPostgres) { case (df, (oldName, newName)) =>
+        df.withColumnRenamed(oldName, newName)
+      }
+
+      // Write test data to a temporary Hive table
+      dfPostgres.write.mode("overwrite").saveAsTable("usukprjdb.people")
+
+      // Verify if the test data is loaded into the temporary Hive table
+      val hiveDataCount = spark.sql("SELECT COUNT(*) FROM usukprjdb.people").collect()(0)(0)
+      val testDataCount = dfPostgres.count()
+      if (hiveDataCount == testDataCount) {
+        println("Test passed: Full load from PostgreSQL to Hive successful")
+      } else {
+        println(s"Test failed: Data count mismatch. Expected: $testDataCount, Actual: $hiveDataCount")
+      }
+    } catch {
+      case e: Exception =>
+        println(s"Test failed: ${e.getMessage}")
+    } finally {
+      // Stop SparkSession after testing
+      spark.stop()
+    }
+  }
+}
