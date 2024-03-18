@@ -38,8 +38,8 @@ object Trans {
 
       // Get the counts of records in PostgreSQL and Hive
       val postgresCount = dfPostgres.count()
-      val hiveDataCount = spark.sql("SELECT COUNT(*) FROM usukprjdb.people").collect()(0)(0).asInstanceOf[Long]
-
+      val hiveDataCount = spark.read.table("usukprjdb.people").count()
+      
       // Verify if the counts match
       if (postgresCount == hiveDataCount) {
         println("PostgresCount", postgresCount)
