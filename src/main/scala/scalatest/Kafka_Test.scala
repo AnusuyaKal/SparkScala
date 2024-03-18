@@ -29,7 +29,8 @@ object Kafka_Test extends App {
   // val schema = ??? // Define your schema here
   val predefinedSchema = StructType(Seq(
   StructField("AGE", StringType, nullable = false),
-  StructField("BIRTH", StringType, nullable = false),
+  StructField("BIRTH", StringType, nullable = false)
+  ))
   val schemaValidation = jsonData.schema.equals(predefinedSchema)
   println(s"Schema validation result: $schemaValidation")
 
