@@ -34,8 +34,8 @@ object Kafka_Test extends App {
   //   StructField("AGE", StringType, nullable = false),
   //   StructField("BIRTH", StringType, nullable = false)
   // ))
-  val schemaValidation = jsonData.schema.equals(schema)
-  println(s"Schema validation result: $schemaValidation")
+  // val schemaValidation = jsonData.schema.equals(schema)
+  // println(s"Schema validation result: $schemaValidation")
 
   // Kafka servers configuration
   val kafkaServers = "ip-172-31-3-80.eu-west-2.compute.internal:9092,ip-172-31-5-217.eu-west-2.compute.internal:9092,ip-172-31-13-101.eu-west-2.compute.internal:9092,ip-172-31-9-237.eu-west-2.compute.internal:9092"
