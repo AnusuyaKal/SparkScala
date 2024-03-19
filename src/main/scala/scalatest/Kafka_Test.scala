@@ -123,5 +123,5 @@ println("----------------------------")
 // Close HBase table and connection to clean up resources
 table.close()
 connection.close()
-//
+}
                                                                                  
