@@ -97,4 +97,31 @@ object Kafka_Test extends App {
     s"$currentTime-$messageHash"
   }
 
- 
+  // Insert each Kafka message into HBase
+  messages.collect().foreach { message =>
+    val rowKey = generateUniqueRowKey(message)
+    val put = new Put(Bytes.toBytes(rowKey))
+    put.addColumn(Bytes.toBytes(columnFamilyName), Bytes.toBytes("column"), Bytes.toBytes(message))
+    table.put(put)
+  }
+
+  // Data Quality Checks: Uniqueness check
+  // Check if there are any duplicate messages in the Kafka topic
+  val uniqueMessageCount = messages.distinct().count()
+  val uniquenessCheck = uniqueMessageCount == messages.count()
+  println(s"Uniqueness check result: $uniquenessCheck")
+
+  // Print summary of operations
+  val kafkaRowCount = df.count()
+  println(s"Number of rows in DataFrame from URL: $urlRowCount")
+  println(s"Number of rows in DataFrame from Kafka topic: $kafkaRowCount")
+  println("----------------------------")
+  println(s"It was the API  : $url")
+  println(s"Kafka Topic was : $topic")
+  println(s"HBase table is  : $tableName")
+  println("----------------------------")
+
+  // Close HBase table and connection to clean up resources
+  table.close()
+  connection.close()
+}
