@@ -30,10 +30,10 @@ object Kafka_Test extends App {
 
   // Data Validation: Schema validation
   // Check if the DataFrame adheres to a predefined schema
-  val schema = StructType(Seq(
-    StructField("AGE", StringType, nullable = false),
-    StructField("BIRTH", StringType, nullable = false)
-  ))
+  // val schema = StructType(Seq(
+  //   StructField("AGE", StringType, nullable = false),
+  //   StructField("BIRTH", StringType, nullable = false)
+  // ))
   val schemaValidation = jsonData.schema.equals(schema)
   println(s"Schema validation result: $schemaValidation")
 
