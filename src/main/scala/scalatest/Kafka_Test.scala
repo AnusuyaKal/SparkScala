@@ -8,120 +8,93 @@ import java.util.{Collections, Properties}
 import org.apache.spark.sql.types._
 
 object Kafka_Test extends App {
-val props = new Properties()
-props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "ip-172-31-3-80.eu-west-2.compute.internal:9092,ip-172-31-5-217.eu-west-2.compute.internal:9092,ip-172-31-13-101.eu-west-2.compute.internal:9092,ip-172-31-9-237.eu-west-2.compute.internal:9092")
-val adminClient = AdminClient.create(props)
+  val props = new Properties()
+  props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "ip-172-31-3-80.eu-west-2.compute.internal:9092,ip-172-31-5-217.eu-west-2.compute.internal:9092,ip-172-31-13-101.eu-west-2.compute.internal:9092,ip-172-31-9-237.eu-west-2.compute.internal:9092")
+  val adminClient = AdminClient.create(props)
 
-// Parameters for the script
-val url = "http://18.133.73.36:5003/insurance_claims1"
-val topic = "InsuranceClaims2"
+  // Parameters for the script
+  val url = "http://18.133.73.36:5003/insurance_claims1"
+  val topic = "InsuranceClaims2"
 
-// Initialize Spark session for DataFrame and Dataset APIs
-val spark = SparkSession.builder.appName("API to Kafka").getOrCreate()
-import spark.implicits._
-// Fetch data from URL and convert it to a string
-val result = Source.fromURL(url).mkString
+  // Initialize Spark session for DataFrame and Dataset APIs
+  val spark = SparkSession.builder.appName("API to Kafka").getOrCreate()
+  import spark.implicits._
 
-// Read the JSON data into a DataFrame
-val jsonData = spark.read.json(Seq(result).toDS)
-val urlRowCount = jsonData.count()
-jsonData.show() // Display the DataFrame contents
+  // Fetch data from URL and convert it to a string
+  val result = Source.fromURL(url).mkString
 
-// Data Validation: Schema validation
-// Check if the DataFrame adheres to a predefined schema
-val schema = StructType(Seq(
-StructField("AGE", StringType, nullable = false),
-StructField("BIRTH", StringType, nullable = false),
-))
-val schemaValidation = jsonData.schema.equals(schema)
-println(s"Schema validation result: $schemaValidation")
+  // Read the JSON data into a DataFrame
+  val jsonData = spark.read.json(Seq(result).toDS)
+  val urlRowCount = jsonData.count()
+  jsonData.show() // Display the DataFrame contents
 
-// Kafka servers configuration
-val kafkaServers = "ip-172-31-3-80.eu-west-2.compute.internal:9092,ip-172-31-5-217.eu-west-2.compute.internal:9092,ip-172-31-13-101.eu-west-2.compute.internal:9092,ip-172-31-9-237.eu-west-2.compute.internal:9092"
+  // Data Validation: Schema validation
+  // Check if the DataFrame adheres to a predefined schema
+  val schema = StructType(Seq(
+    StructField("AGE", StringType, nullable = false),
+    StructField("BIRTH", StringType, nullable = false)
+  ))
+  val schemaValidation = jsonData.schema.equals(schema)
+  println(s"Schema validation result: $schemaValidation")
 
-// Publish the DataFrame as JSON string to the specified Kafka topic
-jsonData.selectExpr("to_json(struct(*)) AS value")
-  .write
-  .format("kafka")
-  .option("kafka.bootstrap.servers", kafkaServers)
-  .option("topic", topic)
-  .save()
+  // Kafka servers configuration
+  val kafkaServers = "ip-172-31-3-80.eu-west-2.compute.internal:9092,ip-172-31-5-217.eu-west-2.compute.internal:9092,ip-172-31-13-101.eu-west-2.compute.internal:9092,ip-172-31-9-237.eu-west-2.compute.internal:9092"
 
-// Read from the Kafka topic
- val df = spark.read
-  .format("kafka")
-  .option("kafka.bootstrap.servers", kafkaServers)
-  .option("subscribe", topic)
-  .option("startingOffsets", "earliest")
-  .load()
+  // Publish the DataFrame as JSON string to the specified Kafka topic
+  jsonData.selectExpr("to_json(struct(*)) AS value")
+    .write
+    .format("kafka")
+    .option("kafka.bootstrap.servers", kafkaServers)
+    .option("topic", topic)
+    .save()
 
-// Convert Kafka messages to string for processing
-val messages = df.selectExpr("CAST(value AS STRING) as message").as[String]
+  // Read from the Kafka topic
+  val df = spark.read
+    .format("kafka")
+    .option("kafka.bootstrap.servers", kafkaServers)
+    .option("subscribe", topic)
+    .option("startingOffsets", "earliest")
+    .load()
 
-// Data Quality Checks: Completeness check
-// Check if the DataFrame has non-null values for required fields
-val completenessCheck = jsonData.na.drop().count() == jsonData.count()
-println(s"Completeness check result: $completenessCheck")
+  // Convert Kafka messages to string for processing
+  val messages = df.selectExpr("CAST(value AS STRING) as message").as[String]
 
-// Configure HBase connection
-val hbaseConf = HBaseConfiguration.create()
-hbaseConf.set("hbase.zookeeper.quorum", "ip-172-31-3-80.eu-west-2.compute.internal,ip-172-31-5-217.eu-west-2.compute.internal,ip-172-31-9-237.eu-west-2.compute.internal")
-hbaseConf.set("hbase.zookeeper.property.clientPort", "2181")
-hbaseConf.set("zookeeper.znode.parent", "/hbase")
+  // Data Quality Checks: Completeness check
+  // Check if the DataFrame has non-null values for required fields
+  val completenessCheck = jsonData.na.drop().count() == jsonData.count()
+  println(s"Completeness check result: $completenessCheck")
 
-// Establish HBase connection
-val connection = ConnectionFactory.createConnection(hbaseConf)
+  // Configure HBase connection
+  val hbaseConf = HBaseConfiguration.create()
+  hbaseConf.set("hbase.zookeeper.quorum", "ip-172-31-3-80.eu-west-2.compute.internal,ip-172-31-5-217.eu-west-2.compute.internal,ip-172-31-9-237.eu-west-2.compute.internal")
+  hbaseConf.set("hbase.zookeeper.property.clientPort", "2181")
+  hbaseConf.set("zookeeper.znode.parent", "/hbase")
 
-// Prepare HBase table for storing the messages
-val tableName = TableName.valueOf(topic)
-val columnFamilyName = "cf"
-val admin = connection.getAdmin
+  // Establish HBase connection
+  val connection = ConnectionFactory.createConnection(hbaseConf)
 
-// Check if table exists, if not, create it
-if (!admin.tableExists(tableName)) {
-  val tableDescriptor = new HTableDescriptor(tableName)
-  val columnDescriptor = new HColumnDescriptor(columnFamilyName)
-  tableDescriptor.addFamily(columnDescriptor)
-  admin.createTable(tableDescriptor)
-  println(s"Table $tableName created.")
-}
+  // Prepare HBase table for storing the messages
+  val tableName = TableName.valueOf(topic)
+  val columnFamilyName = "cf"
+  val admin = connection.getAdmin
 
-// Get the HBase table
-val table = connection.getTable(tableName)
+  // Check if table exists, if not, create it
+  if (!admin.tableExists(tableName)) {
+    val tableDescriptor = new HTableDescriptor(tableName)
+    val columnDescriptor = new HColumnDescriptor(columnFamilyName)
+    tableDescriptor.addFamily(columnDescriptor)
+    admin.createTable(tableDescriptor)
+    println(s"Table $tableName created.")
+  }
 
-// Function to generate unique row keys for messages
-def generateUniqueRowKey(message: String): String = {
-  val currentTime = System.currentTimeMillis()
-  val messageHash = message.hashCode
-  s"$currentTime-$messageHash"
-}
+  // Get the HBase table
+  val table = connection.getTable(tableName)
 
-// Insert each Kafka message into HBase
-messages.collect().foreach { message =>
-  val rowKey = generateUniqueRowKey(message)
-  val put = new Put(Bytes.toBytes(rowKey))
-  put.addColumn(Bytes.toBytes(columnFamilyName), Bytes.toBytes("column"), Bytes.toBytes(message))
-  table.put(put)
-}
+  // Function to generate unique row keys for messages
+  def generateUniqueRowKey(message: String): String = {
+    val currentTime = System.currentTimeMillis()
+    val messageHash = message.hashCode
+    s"$currentTime-$messageHash"
+  }
 
-// Data Quality Checks: Uniqueness check
-// Check if there are any duplicate messages in the Kafka topic
-val uniqueMessageCount = messages.distinct().count()
-val uniquenessCheck = uniqueMessageCount == messages.count()
-println(s"Uniqueness check result: $uniquenessCheck")
-
-// Print summary of operations
-val kafkaRowCount = df.count()
-println(s"Number of rows in DataFrame from URL: $urlRowCount")
-println(s"Number of rows in DataFrame from Kafka topic: $kafkaRowCount")
-println("----------------------------")
-println(s"It was the API  : $url")
-println(s"Kafka Topic was : $topic")
-println(s"HBase table is  : $tableName")
-println("----------------------------")
-
-// Close HBase table and connection to clean up resources
-table.close()
-connection.close()
-}
-                                                                                 
+ 
