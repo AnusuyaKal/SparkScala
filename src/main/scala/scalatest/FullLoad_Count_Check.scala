@@ -48,7 +48,6 @@ object FullLoad_Count_Check {
       } else {
         println("PostgresCount", postgresCount)
         println("hiveDataCount", hiveDataCount)
-        println("Test passed: Full load from PostgreSQL to Hive successful and Count Matches")
         println(s"Test failed: Data count mismatch. PostgreSQL count: $postgresCount, Hive count: $hiveDataCount")
       }
     } catch {
