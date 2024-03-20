@@ -41,6 +41,9 @@ object IncrLoad_Count_Check {
         println("Postgres_Count: " + postgresCount)
         println("Hive_count: " + hiveCount)
       } else {
+        println("Number of rows loaded to Hive matches the expected count")
+        println("Postgres_Count: " + postgresCount)
+        println("Hive_count: " + hiveCount)
         assert(hiveCount == postgresCount, "Number of rows loaded to Hive does not match expected count")
       }
     } catch {
