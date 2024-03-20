@@ -31,7 +31,7 @@ object IncrLoad_Count_Check {
         (df: DataFrame, field) => df.withColumnRenamed(field.name, transformColumn(field.name))
       }
 
-      val whereCondition = """"people_id" > 11"""  // Define your WHERE condition here
+      val whereCondition = """"people_id" > 30"""  // Define your WHERE condition here
 
       // Read count of rows from Hive table after applying the WHERE condition
       val hiveQuery = s"SELECT COUNT(*) AS count FROM usukprjdb.people WHERE $whereCondition"
