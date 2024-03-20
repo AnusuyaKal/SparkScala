@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>scalatest</groupId>
-    <artifactId>Kafka_Test</artifactId>
+    <artifactId>IncrLoad</artifactId>
     <version>0.2</version>
 
     <properties>
@@ -92,7 +92,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>scalatest.Kafka_Test</mainClass>
+                            <mainClass>scalatest.IncrLoad</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
