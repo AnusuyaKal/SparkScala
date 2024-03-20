@@ -46,11 +46,23 @@ object HBase_Validation {
           }
 
           // Check for null values and data type mismatches in each cell of the row
-          result.listCells().forEach { cell =>
-            val columnFamily = Bytes.toString(cell.getFamilyArray, cell.getFamilyOffset, cell.getFamilyLength)
-            val qualifier = Bytes.toString(cell.getQualifierArray, cell.getQualifierOffset, cell.getQualifierLength)
-            val value = Bytes.toString(cell.getValueArray, cell.getValueOffset, cell.getValueLength)
+          // result.listCells().forEach { cell =>
+          //   val columnFamily = Bytes.toString(cell.getFamilyArray, cell.getFamilyOffset, cell.getFamilyLength)
+          //   val qualifier = Bytes.toString(cell.getQualifierArray, cell.getQualifierOffset, cell.getQualifierLength)
+          //   val value = Bytes.toString(cell.getValueArray, cell.getValueOffset, cell.getValueLength)
 
+          result.listCells().forEach { cell =>
+            try {
+              val columnFamily = Bytes.toString(cell.getFamilyArray, cell.getFamilyOffset, cell.getFamilyLength)
+              val qualifier = Bytes.toString(cell.getQualifierArray, cell.getQualifierOffset, cell.getQualifierLength)
+              val value = Bytes.toString(cell.getValueArray, cell.getValueOffset, cell.getValueLength)
+    
+            // Process the extracted data
+            } catch {
+            case ex: Exception =>
+            println(s"Error processing cell: ${ex.getMessage}")
+            }
+          }
             // Check for null values
             if (value == null || value.isEmpty) {
               println(s"Null value found in row $rowCount, column family: $columnFamily, qualifier: $qualifier")
