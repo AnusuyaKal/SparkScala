@@ -1,5 +1,3 @@
-package scalatest
-
 import org.apache.hadoop.hbase.client.{ConnectionFactory, Scan, ResultScanner}
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
 import org.apache.hadoop.hbase.util.Bytes
@@ -46,33 +44,22 @@ object HBase_Validation {
           }
 
           // Check for null values and data type mismatches in each cell of the row
-          // result.listCells().forEach { cell =>
-          //   val columnFamily = Bytes.toString(cell.getFamilyArray, cell.getFamilyOffset, cell.getFamilyLength)
-          //   val qualifier = Bytes.toString(cell.getQualifierArray, cell.getQualifierOffset, cell.getQualifierLength)
-          //   val value = Bytes.toString(cell.getValueArray, cell.getValueOffset, cell.getValueLength)
-
           result.listCells().forEach { cell =>
             try {
               val columnFamily = Bytes.toString(cell.getFamilyArray, cell.getFamilyOffset, cell.getFamilyLength)
               val qualifier = Bytes.toString(cell.getQualifierArray, cell.getQualifierOffset, cell.getQualifierLength)
               val value = Bytes.toString(cell.getValueArray, cell.getValueOffset, cell.getValueLength)
     
-            // Process the extracted data
+              // Process the extracted data
+              
+              // Check for null values
+              if (value == null || value.isEmpty) {
+                println(s"Null value found in row $rowCount, column family: $columnFamily, qualifier: $qualifier")
+              }
             } catch {
-            case ex: Exception =>
-            println(s"Error processing cell: ${ex.getMessage}")
+              case ex: Exception =>
+                println(s"Error processing cell: ${ex.getMessage}")
             }
-          }
-            // Check for null values
-            if (value == null || value.isEmpty) {
-              println(s"Null value found in row $rowCount, column family: $columnFamily, qualifier: $qualifier")
-            }
-
-            // Check for data type mismatches (you can customize this part based on your specific data types)
-            // For example, if you expect an integer value in a certain column, you can check if the value can be parsed as an integer
-            // if (isNotExpectedDataType(value, expectedDataType)) {
-            //   println(s"Data type mismatch found in row $rowCount, column family: $columnFamily, qualifier: $qualifier")
-            // }
           }
         }
       }
