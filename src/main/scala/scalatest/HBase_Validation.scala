@@ -6,7 +6,7 @@
 
 // import scala.collection.mutable
 
-// object HBase_Test {
+// object HBase_Validation {
 //   def main(args: Array[String]): Unit = {
 //     println("#####################################################")
 //     println("The Program is running..")
