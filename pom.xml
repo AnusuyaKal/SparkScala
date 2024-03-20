@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>scalatest</groupId>
-    <artifactId>HBase_Validation</artifactId>
+    <artifactId>IncrLoad_Count_Check</artifactId>
     <version>0.2</version>
 
     <properties>
@@ -92,7 +92,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>scalatest.HBase_Validation</mainClass>
+                            <mainClass>scalatest.IncrLoad_Count_Check</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
