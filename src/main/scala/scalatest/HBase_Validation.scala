@@ -1,3 +1,4 @@
+package scalatest;
 import org.apache.hadoop.hbase.client.{ConnectionFactory, Scan, ResultScanner}
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
 import org.apache.hadoop.hbase.util.Bytes
