@@ -1,7 +1,7 @@
 package scalatest;
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
-object IncrLoad {
+object IncrLoad_Count_Check {
   def main(args: Array[String]): Unit = {
     // Create SparkSession
     val spark = SparkSession.builder()
