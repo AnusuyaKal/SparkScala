@@ -2,6 +2,8 @@ import org.apache.hadoop.hbase.client.{ConnectionFactory, Scan, ResultScanner}
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
 import org.apache.hadoop.hbase.util.Bytes
 
+import scala.collection.JavaConverters._
+
 import scala.collection.mutable
 
 object HBase_Validation {
@@ -27,24 +29,6 @@ object HBase_Validation {
     var rowCount: Int = 0
     val rowKeysSet: mutable.Set[String] = mutable.Set.empty
 
-    def processCell(cell: org.apache.hadoop.hbase.Cell, rowCount: Int): Unit = {
-      try {
-        val columnFamily = Bytes.toString(cell.getFamilyArray, cell.getFamilyOffset, cell.getFamilyLength)
-        val qualifier = Bytes.toString(cell.getQualifierArray, cell.getQualifierOffset, cell.getQualifierLength)
-        val value = Bytes.toString(cell.getValueArray, cell.getValueOffset, cell.getValueLength)
-
-        // Process the extracted data
-
-        // Check for null values
-        if (value == null || value.isEmpty) {
-          println(s"Null value found in row $rowCount, column family: $columnFamily, qualifier: $qualifier")
-        }
-      } catch {
-        case ex: Exception =>
-          println(s"Error processing cell: ${ex.getMessage}")
-      }
-    }
-
     try {
       println("Counting rows and checking for duplicates...")
       val iterator = scanner.iterator()
@@ -62,7 +46,7 @@ object HBase_Validation {
           }
 
           // Process each cell in the row
-          result.listCells().forEach { cell: org.apache.hadoop.hbase.Cell =>
+          result.listCells().asScala.foreach { cell =>
             processCell(cell, rowCount)
           }
         }
@@ -77,5 +61,23 @@ object HBase_Validation {
 
     // Close HBase connection
     connection.close()
+  }
+
+  def processCell(cell: org.apache.hadoop.hbase.Cell, rowCount: Int): Unit = {
+    try {
+      val columnFamily = Bytes.toString(cell.getFamilyArray, cell.getFamilyOffset, cell.getFamilyLength)
+      val qualifier = Bytes.toString(cell.getQualifierArray, cell.getQualifierOffset, cell.getQualifierLength)
+      val value = Bytes.toString(cell.getValueArray, cell.getValueOffset, cell.getValueLength)
+
+      // Process the extracted data
+
+      // Check for null values
+      if (value == null || value.isEmpty) {
+        println(s"Null value found in row $rowCount, column family: $columnFamily, qualifier: $qualifier")
+      }
+    } catch {
+      case ex: Exception =>
+        println(s"Error processing cell: ${ex.getMessage}")
+    }
   }
 }
