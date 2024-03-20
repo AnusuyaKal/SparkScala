@@ -26,18 +26,14 @@ object IncrLoad {
       }
 
       // Apply column name transformation to the new data DataFrame
-      val transformedData = newDataSchema.foldLeft(spark.read.jdbc(postgresUrl, "people", postgresProperties)) {
+      val transformedData = newDataSchema.fields.foldLeft(spark.read.jdbc(postgresUrl, "people", postgresProperties)) {
         (df: DataFrame, field) => df.withColumnRenamed(field.name, transformColumn(field.name))
       }
 
-      transformedData.show()
-
       val whereCondition = """"people_id" > 11"""  // Define your WHERE condition here
 
-      // Define the Hive SQL query with the WHERE condition
-      val hiveQuery = s"SELECT COUNT(*) AS count FROM usukprjdb.people WHERE $whereCondition"
-
       // Read count of rows from Hive table after applying the WHERE condition
+      val hiveQuery = s"SELECT COUNT(*) AS count FROM usukprjdb.people WHERE $whereCondition"
       val hiveCountDF = spark.sql(hiveQuery)
       val hiveCount = hiveCountDF.collect()(0)(0).toString.toLong
 
